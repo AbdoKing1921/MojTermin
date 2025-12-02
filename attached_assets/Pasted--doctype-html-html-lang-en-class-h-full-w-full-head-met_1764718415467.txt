@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en" class="h-full w-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Booking App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .main-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Smooth transitions */
+    .fade-transition {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    
+    .screen-hidden {
+      opacity: 0;
+      transform: translateX(30px);
+      pointer-events: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    
+    .screen-visible {
+      opacity: 1;
+      transform: translateX(0);
+      position: relative;
+    }
+    
+    /* Card effects */
+    .category-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+    
+    .category-card:active {
+      transform: translateY(-2px);
+    }
+    
+    /* Soft shadows */
+    .soft-shadow {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    
+    .soft-shadow-lg {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Time slot animation */
+    .time-slot {
+      transition: all 0.2s ease;
+    }
+    
+    .time-slot:hover {
+      transform: scale(1.05);
+    }
+    
+    /* Calendar day animation */
+    .calendar-day {
+      transition: all 0.2s ease;
+    }
+    
+    .calendar-day:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Smooth scroll */
+    .scroll-smooth {
+      scroll-behavior: smooth;
+    }
+    
+    /* Focus styles */
+    .focus-ring:focus-visible {
+      outline: 2px solid #6366F1;
+      outline-offset: 2px;
+    }
+    
+    /* Navigation styles */
+    .nav-btn {
+      color: #94A3B8;
+    }
+    
+    .nav-btn.active {
+      color: #6366F1;
+    }
+    
+    .nav-btn svg {
+      stroke: currentColor;
+    }
+    
+    .nav-btn:hover {
+      background-color: #F8FAFC;
+    }
+    
+    /* Gradient backgrounds - Professional style */
+    .gradient-cafe {
+      background: linear-gradient(135deg, #F5F5F4 0%, #E7E5E4 100%);
+    }
+    
+    .gradient-beauty {
+      background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+    }
+    
+    .gradient-barber {
+      background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+    }
+    
+    .gradient-wellness {
+      background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+    }
+    
+    .gradient-sports {
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+    }
+    
+    .gradient-services {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full w-full">
+  <div class="main-wrapper bg-[#F8FAFC] flex items-center justify-center p-4"><!-- Mobile App Container -->
+   <div class="relative w-full max-w-md h-full max-h-[740px] bg-[#FFFFFF] rounded-[40px] soft-shadow-lg overflow-hidden"><!-- HOME SCREEN -->
+    <div id="home-screen" class="fade-transition screen-visible w-full h-full flex flex-col"><!-- Header -->
+     <header class="px-6 pt-8 pb-6">
+      <div class="flex items-center justify-between mb-6">
+       <div>
+        <h1 id="app-name" class="text-2xl font-bold text-[#0F172A] mb-1">BookIt</h1>
+        <p id="tagline" class="text-sm text-[#64748B]">Book anything, anytime</p>
+       </div><button type="button" class="focus-ring w-11 h-11 rounded-full bg-[#F1F5F9] flex items-center justify-center" aria-label="Profile">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle>
+        </svg></button>
+      </div><!-- Search Bar -->
+      <div class="relative"><label for="search-input" class="sr-only">Search services</label>
+       <div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+        <svg width="18" height="18" viewbox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle> <path d="m21 21-4.35-4.35"></path>
+        </svg>
+       </div><input type="text" id="search-input" class="focus-ring w-full pl-12 pr-4 py-3.5 bg-[#F8FAFC] rounded-2xl text-sm text-[#0F172A] placeholder:text-[#94A3B8] border-2 border-transparent focus:border-[#6366F1] focus:bg-white transition-all" placeholder="Search for services...">
+      </div>
+     </header><!-- Main Content -->
+     <main class="flex-1 overflow-y-auto px-6 pb-24 scroll-smooth"><!-- Categories Section -->
+      <section class="mb-8">
+       <h2 id="categories-title" class="text-lg font-bold text-[#0F172A] mb-4">Categories</h2>
+       <div id="categories-container" class="flex gap-4 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing" style="scrollbar-width: none; -ms-overflow-style: none;">
+        <style>
+                #categories-container::-webkit-scrollbar {
+                  display: none;
+                }
+              </style><!-- Cafés --> <button type="button" class="category-card focus-ring gradient-cafe rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="cafes">
+         <div class="w-14 h-14 bg-[#57534E]/10 rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#57534E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path> <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path> <line x1="6" y1="1" x2="6" y2="4"></line> <line x1="10" y1="1" x2="10" y2="4"></line> <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#292524] mb-1">Kafići</h3><p class="text-xs text-[#57534E]">Rezervišite stolove</p></button> <!-- Beauty --> <button type="button" class="category-card focus-ring gradient-beauty rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="beauty">
+         <div class="w-14 h-14 bg-[#7C3AED]/10 rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path> <path d="M12 12v10"></path> <path d="M8 22h8"></path>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#5B21B6] mb-1">Ljepota</h3><p class="text-xs text-[#6D28D9]">Saloni &amp; spa</p></button> <!-- Barber --> <button type="button" class="category-card focus-ring gradient-barber rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="barber">
+         <div class="w-14 h-14 bg-[#F9FAFB] rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#F3F4F6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect> <line x1="9" y1="9" x2="15" y2="15"></line> <line x1="15" y1="9" x2="9" y2="15"></line>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#F9FAFB] mb-1">Berber</h3><p class="text-xs text-[#E5E7EB]">Profesionalno šišanje</p></button> <!-- Wellness --> <button type="button" class="category-card focus-ring gradient-wellness rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="wellness">
+         <div class="w-14 h-14 bg-[#059669]/10 rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#047857] mb-1">Wellness</h3><p class="text-xs text-[#059669]">Um i tijelo</p></button> <!-- Sports --> <button type="button" class="category-card focus-ring gradient-sports rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="sports">
+         <div class="w-14 h-14 bg-[#2563EB]/10 rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle> <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path> <path d="M2 12h20"></path>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#1E40AF] mb-1">Sport</h3><p class="text-xs text-[#2563EB]">Tereni i treninzi</p></button> <!-- Services --> <button type="button" class="category-card focus-ring gradient-services rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44" data-category="services">
+         <div class="w-14 h-14 bg-[#CA8A04]/10 rounded-xl flex items-center justify-center mb-4">
+          <svg width="28" height="28" viewbox="0 0 24 24" fill="none" stroke="#CA8A04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
+          </svg>
+         </div><h3 class="text-base font-bold text-[#854D0E] mb-1">Usluge</h3><p class="text-xs text-[#A16207]">Kućne popravke</p></button>
+       </div>
+      </section><!-- Popular Barbershops Section -->
+      <section>
+       <h2 id="popular-title" class="text-lg font-bold text-[#0F172A] mb-4">Popularni Berberi</h2>
+       <div id="barbershops-container" class="flex gap-4 overflow-x-auto pb-4 cursor-grab active:cursor-grabbing" style="scrollbar-width: none; -ms-overflow-style: none;">
+        <style>
+                #barbershops-container::-webkit-scrollbar {
+                  display: none;
+                }
+              </style><!-- Barbershop 1 -->
+        <div class="category-card soft-shadow rounded-2xl overflow-hidden flex-shrink-0 w-64 bg-white">
+         <div class="h-36 bg-gradient-to-br from-[#1F2937] to-[#111827] flex items-center justify-center relative">
+          <div class="absolute top-3 right-3 bg-[#FBBF24] text-[#78350F] text-xs font-bold px-2.5 py-1 rounded-full">
+           Sponsored
+          </div>
+          <svg width="48" height="48" viewbox="0 0 24 24" fill="none" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9l4-6z"></path> <path d="M11 3 8 9l4 13 4-13-3-6"></path>
+          </svg>
+         </div>
+         <div class="p-4">
+          <h3 class="text-base font-bold text-[#0F172A] mb-1">Classic Cuts</h3>
+          <p class="text-xs text-[#64748B] mb-3">Downtown • 2.3 km</p>
+          <div class="flex items-center gap-2">
+           <div class="flex items-center gap-1">
+            <svg width="14" height="14" viewbox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg><span class="text-sm font-bold text-[#0F172A]">4.8</span>
+           </div><span class="text-xs text-[#94A3B8]">(234 reviews)</span>
+          </div>
+         </div>
+        </div><!-- Barbershop 2 -->
+        <div class="category-card soft-shadow rounded-2xl overflow-hidden flex-shrink-0 w-64 bg-white">
+         <div class="h-36 bg-gradient-to-br from-[#374151] to-[#1F2937] flex items-center justify-center relative">
+          <div class="absolute top-3 right-3 bg-[#FBBF24] text-[#78350F] text-xs font-bold px-2.5 py-1 rounded-full">
+           Sponsored
+          </div>
+          <svg width="48" height="48" viewbox="0 0 24 24" fill="none" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect> <line x1="9" y1="9" x2="15" y2="15"></line> <line x1="15" y1="9" x2="9" y2="15"></line>
+          </svg>
+         </div>
+         <div class="p-4">
+          <h3 class="text-base font-bold text-[#0F172A] mb-1">The Gentleman's Room</h3>
+          <p class="text-xs text-[#64748B] mb-3">City Center • 1.8 km</p>
+          <div class="flex items-center gap-2">
+           <div class="flex items-center gap-1">
+            <svg width="14" height="14" viewbox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg><span class="text-sm font-bold text-[#0F172A]">4.9</span>
+           </div><span class="text-xs text-[#94A3B8]">(189 reviews)</span>
+          </div>
+         </div>
+        </div><!-- Barbershop 3 -->
+        <div class="category-card soft-shadow rounded-2xl overflow-hidden flex-shrink-0 w-64 bg-white">
+         <div class="h-36 bg-gradient-to-br from-[#4B5563] to-[#374151] flex items-center justify-center">
+          <svg width="48" height="48" viewbox="0 0 24 24" fill="none" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path> <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+         </div>
+         <div class="p-4">
+          <h3 class="text-base font-bold text-[#0F172A] mb-1">Sharp Edges</h3>
+          <p class="text-xs text-[#64748B] mb-3">Westside • 3.1 km</p>
+          <div class="flex items-center gap-2">
+           <div class="flex items-center gap-1">
+            <svg width="14" height="14" viewbox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg><span class="text-sm font-bold text-[#0F172A]">4.7</span>
+           </div><span class="text-xs text-[#94A3B8]">(156 reviews)</span>
+          </div>
+         </div>
+        </div><!-- Barbershop 4 -->
+        <div class="category-card soft-shadow rounded-2xl overflow-hidden flex-shrink-0 w-64 bg-white">
+         <div class="h-36 bg-gradient-to-br from-[#6B7280] to-[#4B5563] flex items-center justify-center">
+          <svg width="48" height="48" viewbox="0 0 24 24" fill="none" stroke="#F9FAFB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle> <line x1="12" y1="8" x2="12" y2="12"></line> <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+         </div>
+         <div class="p-4">
+          <h3 class="text-base font-bold text-[#0F172A] mb-1">Modern Barber Co.</h3>
+          <p class="text-xs text-[#64748B] mb-3">Eastside • 2.7 km</p>
+          <div class="flex items-center gap-2">
+           <div class="flex items-center gap-1">
+            <svg width="14" height="14" viewbox="0 0 24 24" fill="#FBBF24" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg><span class="text-sm font-bold text-[#0F172A]">4.6</span>
+           </div><span class="text-xs text-[#94A3B8]">(203 reviews)</span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </section>
+     </main><!-- Bottom Navigation -->
+     <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-[#F1F5F9] px-6 py-3 flex items-center justify-around"><button type="button" class="focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn active" data-nav="home" aria-label="Početna">
+       <svg width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path> <polyline points="9 22 9 12 15 12 15 22"></polyline>
+       </svg><span class="text-xs font-medium">Početna</span> </button> <button type="button" class="focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn" data-nav="search" aria-label="Pretraga">
+       <svg width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle> <path d="m21 21-4.35-4.35"></path>
+       </svg><span class="text-xs font-medium">Pretraga</span> </button> <button type="button" class="focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn" data-nav="profile" aria-label="Profil">
+       <svg width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle>
+       </svg><span class="text-xs font-medium">Profil</span> </button> <button type="button" class="focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn" data-nav="more" aria-label="Više">
+       <svg width="22" height="22" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle> <circle cx="12" cy="5" r="1"></circle> <circle cx="12" cy="19" r="1"></circle>
+       </svg><span class="text-xs font-medium">Više</span> </button>
+     </nav>
+    </div><!-- BOOKING SCREEN -->
+    <div id="booking-screen" class="fade-transition screen-hidden w-full h-full flex flex-col"><!-- Header with Back Button -->
+     <header class="px-6 pt-8 pb-6 border-b border-[#F1F5F9]">
+      <div class="flex items-center gap-4 mb-4"><button type="button" id="back-button" class="focus-ring w-10 h-10 rounded-full bg-[#F8FAFC] flex items-center justify-center" aria-label="Go back">
+        <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path>
+        </svg></button>
+       <div>
+        <h2 id="booking-screen-title" class="text-xl font-bold text-[#0F172A]">Book Appointment</h2>
+        <p id="selected-category-name" class="text-sm text-[#64748B]">Cafés</p>
+       </div>
+      </div>
+     </header><!-- Booking Content -->
+     <main class="flex-1 overflow-y-auto px-6 py-6 scroll-smooth"><!-- Date Selection -->
+      <section class="mb-8">
+       <h3 id="select-date-label" class="text-sm font-bold text-[#0F172A] mb-4">Select Date</h3>
+       <div class="bg-[#F8FAFC] rounded-3xl p-5 soft-shadow"><!-- Month Header -->
+        <div class="flex items-center justify-between mb-5"><button type="button" id="prev-month" class="focus-ring w-9 h-9 rounded-full bg-white flex items-center justify-center" aria-label="Previous month">
+          <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path>
+          </svg></button> <span id="current-month-year" class="text-sm font-bold text-[#0F172A]">January 2025</span> <button type="button" id="next-month" class="focus-ring w-9 h-9 rounded-full bg-white flex items-center justify-center" aria-label="Next month">
+          <svg width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path>
+          </svg></button>
+        </div><!-- Weekday Labels -->
+        <div class="grid grid-cols-7 gap-2 mb-3">
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          S
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          M
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          T
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          W
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          T
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          F
+         </div>
+         <div class="text-center text-xs font-medium text-[#94A3B8]">
+          S
+         </div>
+        </div><!-- Calendar Grid -->
+        <div id="calendar-grid" class="grid grid-cols-7 gap-2"></div>
+       </div>
+      </section><!-- Time Selection -->
+      <section class="mb-6">
+       <h3 id="select-time-label" class="text-sm font-bold text-[#0F172A] mb-4">Select Time</h3>
+       <div id="time-slots-grid" class="grid grid-cols-3 gap-3"></div>
+      </section>
+     </main><!-- Book Button -->
+     <footer class="px-6 py-5 border-t border-[#F1F5F9]"><button type="button" id="book-appointment-btn" class="focus-ring w-full bg-[#6366F1] text-white py-4 rounded-2xl font-bold text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:bg-[#4F46E5]" disabled> <span id="book-button-text">Book Appointment</span>
+       <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path> <path d="m12 5 7 7-7 7"></path>
+       </svg></button>
+      <p class="text-center text-xs text-[#94A3B8] mt-3">Odaberite datum i vrijeme za nastavak</p>
+     </footer>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Configuration
+    const defaultConfig = {
+      app_name: "MojTermin",
+      tagline: "Zakažite bilo šta, bilo kada",
+      search_placeholder: "Pretražite usluge...",
+      categories_title: "Kategorije",
+      booking_screen_title: "Zakažite Termin",
+      select_date_label: "Odaberite Datum",
+      select_time_label: "Odaberite Vrijeme",
+      book_button_text: "Zakažite Termin",
+      
+      // Colors (5 max: background, surface, text, primary action, secondary action)
+      background_color: "#F8FAFC",
+      surface_color: "#FFFFFF",
+      text_color: "#0F172A",
+      primary_action_color: "#6366F1",
+      secondary_action_color: "#F8FAFC",
+      
+      font_family: "system-ui",
+      font_size: 14
+    };
+
+    // State
+    let currentScreen = 'home';
+    let selectedCategory = null;
+    let selectedDate = null;
+    let selectedTime = null;
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    // DOM Elements
+    const homeScreen = document.getElementById('home-screen');
+    const bookingScreen = document.getElementById('booking-screen');
+    const backButton = document.getElementById('back-button');
+    const categoryButtons = document.querySelectorAll('.category-card');
+    const selectedCategoryName = document.getElementById('selected-category-name');
+    const calendarGrid = document.getElementById('calendar-grid');
+    const timeSlotsGrid = document.getElementById('time-slots-grid');
+    const bookAppointmentBtn = document.getElementById('book-appointment-btn');
+    const currentMonthYearEl = document.getElementById('current-month-year');
+    const prevMonthBtn = document.getElementById('prev-month');
+    const nextMonthBtn = document.getElementById('next-month');
+    const searchInput = document.getElementById('search-input');
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const categoriesContainer = document.getElementById('categories-container');
+    const barbershopsContainer = document.getElementById('barbershops-container');
+
+    // Horizontal drag scroll function
+    function setupDragScroll(container) {
+      let isDragging = false;
+      let startX;
+      let scrollLeft;
+
+      container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        container.style.cursor = 'grabbing';
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+      });
+
+      container.addEventListener('mouseleave', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+      });
+
+      container.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.style.cursor = 'grab';
+      });
+
+      container.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+      });
+    }
+
+    // Apply drag scroll to both containers
+    setupDragScroll(categoriesContainer);
+    setupDragScroll(barbershopsContainer);
+
+    // Category names mapping
+    const categoryNames = {
+      cafes: 'Kafići',
+      beauty: 'Ljepota',
+      barber: 'Berber',
+      wellness: 'Wellness',
+      sports: 'Sport',
+      services: 'Usluge'
+    };
+
+    // Navigation button handlers
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        navButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const navType = this.dataset.nav;
+        if (navType === 'search') {
+          searchInput.focus();
+        }
+      });
+    });
+
+    // Switch screens
+    function switchToBooking(category) {
+      selectedCategory = category;
+      selectedCategoryName.textContent = categoryNames[category];
+      homeScreen.classList.remove('screen-visible');
+      homeScreen.classList.add('screen-hidden');
+      bookingScreen.classList.remove('screen-hidden');
+      bookingScreen.classList.add('screen-visible');
+      currentScreen = 'booking';
+      
+      // Generate calendar and time slots
+      generateCalendar();
+      generateTimeSlots();
+    }
+
+    function switchToHome() {
+      bookingScreen.classList.remove('screen-visible');
+      bookingScreen.classList.add('screen-hidden');
+      homeScreen.classList.remove('screen-hidden');
+      homeScreen.classList.add('screen-visible');
+      currentScreen = 'home';
+      
+      // Reset selections
+      selectedDate = null;
+      selectedTime = null;
+      checkBookingReady();
+    }
+
+    // Category button handlers
+    categoryButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const category = this.dataset.category;
+        switchToBooking(category);
+      });
+    });
+
+    // Back button handler
+    backButton.addEventListener('click', switchToHome);
+
+    // Generate Calendar
+    function generateCalendar() {
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const today = new Date();
+      
+      const monthNames = ["Januar", "Februar", "Mart", "April", "Maj", "Juni",
+        "Juli", "August", "Septembar", "Oktobar", "Novembar", "Decembar"];
+      
+      currentMonthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      
+      calendarGrid.innerHTML = '';
+      
+      // Empty cells before first day
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'h-10';
+        calendarGrid.appendChild(emptyCell);
+      }
+      
+      // Day cells
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayBtn = document.createElement('button');
+        dayBtn.type = 'button';
+        dayBtn.className = 'calendar-day focus-ring h-10 rounded-xl text-sm font-medium transition-all';
+        dayBtn.textContent = day;
+        
+        const cellDate = new Date(currentYear, currentMonth, day);
+        const dateString = cellDate.toISOString().split('T')[0];
+        dayBtn.dataset.date = dateString;
+        
+        // Check if today
+        const isToday = cellDate.toDateString() === today.toDateString();
+        
+        // Check if past date
+        const isPast = cellDate < today && !isToday;
+        
+        if (isPast) {
+          dayBtn.className += ' text-[#CBD5E1] cursor-not-allowed';
+          dayBtn.disabled = true;
+        } else if (isToday) {
+          dayBtn.className += ' bg-[#6366F1] text-white';
+          if (!selectedDate) {
+            selectedDate = dateString;
+          }
+        } else {
+          dayBtn.className += ' bg-white text-[#0F172A] hover:bg-[#F1F5F9]';
+        }
+        
+        if (selectedDate === dateString) {
+          dayBtn.classList.remove('bg-white', 'hover:bg-[#F1F5F9]');
+          dayBtn.classList.add('bg-[#6366F1]', 'text-white');
+        }
+        
+        dayBtn.addEventListener('click', function() {
+          if (!this.disabled) {
+            selectedDate = this.dataset.date;
+            generateCalendar();
+            checkBookingReady();
+          }
+        });
+        
+        calendarGrid.appendChild(dayBtn);
+      }
+    }
+
+    // Month navigation
+    prevMonthBtn.addEventListener('click', function() {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      generateCalendar();
+    });
+
+    nextMonthBtn.addEventListener('click', function() {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      generateCalendar();
+    });
+
+    // Generate Time Slots
+    function generateTimeSlots() {
+      const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', 
+                     '15:00', '16:00', '17:00', '18:00', '19:00', '20:00'];
+      
+      timeSlotsGrid.innerHTML = '';
+      
+      times.forEach(time => {
+        const timeBtn = document.createElement('button');
+        timeBtn.type = 'button';
+        timeBtn.className = 'time-slot focus-ring bg-white border-2 border-[#E2E8F0] rounded-xl py-3 text-sm font-semibold text-[#0F172A] hover:border-[#6366F1] transition-all';
+        timeBtn.textContent = time;
+        timeBtn.dataset.time = time;
+        
+        if (selectedTime === time) {
+          timeBtn.classList.remove('bg-white', 'border-[#E2E8F0]');
+          timeBtn.classList.add('bg-[#6366F1]', 'text-white', 'border-[#6366F1]');
+        }
+        
+        timeBtn.addEventListener('click', function() {
+          selectedTime = this.dataset.time;
+          generateTimeSlots();
+          checkBookingReady();
+        });
+        
+        timeSlotsGrid.appendChild(timeBtn);
+      });
+    }
+
+    // Check if booking is ready
+    function checkBookingReady() {
+      if (selectedDate && selectedTime) {
+        bookAppointmentBtn.disabled = false;
+      } else {
+        bookAppointmentBtn.disabled = true;
+      }
+    }
+
+    // Book appointment handler
+    bookAppointmentBtn.addEventListener('click', function() {
+      if (selectedDate && selectedTime && selectedCategory) {
+        // Show inline confirmation
+        const originalText = this.innerHTML;
+        this.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Uspješno Zakazano!</span>
+        `;
+        this.classList.add('bg-[#10B981]');
+        this.classList.remove('bg-[#6366F1]');
+        
+        setTimeout(() => {
+          this.innerHTML = originalText;
+          this.classList.remove('bg-[#10B981]');
+          this.classList.add('bg-[#6366F1]');
+          switchToHome();
+        }, 2000);
+      }
+    });
+
+    // ----- Element SDK Integration -----
+    function applyConfigToUI(config) {
+      const cfg = Object.assign({}, defaultConfig, config || {});
+      
+      const backgroundColor = cfg.background_color || defaultConfig.background_color;
+      const surfaceColor = cfg.surface_color || defaultConfig.surface_color;
+      const textColor = cfg.text_color || defaultConfig.text_color;
+      const primaryActionColor = cfg.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = cfg.secondary_action_color || defaultConfig.secondary_action_color;
+      
+      const baseFontFamily = cfg.font_family || defaultConfig.font_family;
+      const baseSize = Number(cfg.font_size || defaultConfig.font_size);
+      const fullFontStack = `${baseFontFamily}, system-ui, -apple-system, sans-serif`;
+      
+      // Apply background
+      document.querySelector('.main-wrapper').style.backgroundColor = backgroundColor;
+      
+      // Apply text content
+      document.getElementById('app-name').textContent = cfg.app_name || defaultConfig.app_name;
+      document.getElementById('tagline').textContent = cfg.tagline || defaultConfig.tagline;
+      document.getElementById('search-input').placeholder = cfg.search_placeholder || defaultConfig.search_placeholder;
+      document.getElementById('categories-title').textContent = cfg.categories_title || defaultConfig.categories_title;
+      document.getElementById('booking-screen-title').textContent = cfg.booking_screen_title || defaultConfig.booking_screen_title;
+      document.getElementById('select-date-label').textContent = cfg.select_date_label || defaultConfig.select_date_label;
+      document.getElementById('select-time-label').textContent = cfg.select_time_label || defaultConfig.select_time_label;
+      document.getElementById('book-button-text').textContent = cfg.book_button_text || defaultConfig.book_button_text;
+      
+      // Apply colors
+      document.getElementById('book-appointment-btn').style.backgroundColor = primaryActionColor;
+      
+      // Apply fonts
+      document.body.style.fontFamily = fullFontStack;
+      document.getElementById('app-name').style.fontSize = `${baseSize * 1.7}px`;
+      document.getElementById('tagline').style.fontSize = `${baseSize}px`;
+      document.getElementById('categories-title').style.fontSize = `${baseSize * 1.3}px`;
+      document.getElementById('booking-screen-title').style.fontSize = `${baseSize * 1.5}px`;
+      document.getElementById('select-date-label').style.fontSize = `${baseSize}px`;
+      document.getElementById('select-time-label').style.fontSize = `${baseSize}px`;
+      document.getElementById('book-button-text').style.fontSize = `${baseSize * 1.1}px`;
+    }
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: async (config) => {
+          applyConfigToUI(config);
+        },
+        mapToCapabilities: (config) => {
+          const cfg = config || defaultConfig;
+          return {
+            recolorables: [
+              {
+                get: () => cfg.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  cfg.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => cfg.surface_color || defaultConfig.surface_color,
+                set: (value) => {
+                  cfg.surface_color = value;
+                  window.elementSdk.setConfig({ surface_color: value });
+                }
+              },
+              {
+                get: () => cfg.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  cfg.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => cfg.primary_action_color || defaultConfig.primary_action_color,
+                set: (value) => {
+                  cfg.primary_action_color = value;
+                  window.elementSdk.setConfig({ primary_action_color: value });
+                }
+              },
+              {
+                get: () => cfg.secondary_action_color || defaultConfig.secondary_action_color,
+                set: (value) => {
+                  cfg.secondary_action_color = value;
+                  window.elementSdk.setConfig({ secondary_action_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: {
+              get: () => cfg.font_family || defaultConfig.font_family,
+              set: (value) => {
+                cfg.font_family = value;
+                window.elementSdk.setConfig({ font_family: value });
+              }
+            },
+            fontSizeable: {
+              get: () => cfg.font_size || defaultConfig.font_size,
+              set: (value) => {
+                cfg.font_size = value;
+                window.elementSdk.setConfig({ font_size: value });
+              }
+            }
+          };
+        },
+        mapToEditPanelValues: (config) => {
+          const cfg = config || defaultConfig;
+          return new Map([
+            ["app_name", cfg.app_name || defaultConfig.app_name],
+            ["tagline", cfg.tagline || defaultConfig.tagline],
+            ["search_placeholder", cfg.search_placeholder || defaultConfig.search_placeholder],
+            ["categories_title", cfg.categories_title || defaultConfig.categories_title],
+            ["booking_screen_title", cfg.booking_screen_title || defaultConfig.booking_screen_title],
+            ["select_date_label", cfg.select_date_label || defaultConfig.select_date_label],
+            ["select_time_label", cfg.select_time_label || defaultConfig.select_time_label],
+            ["book_button_text", cfg.book_button_text || defaultConfig.book_button_text]
+          ]);
+        }
+      });
+      
+      applyConfigToUI(window.elementSdk.config || defaultConfig);
+    } else {
+      applyConfigToUI(defaultConfig);
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a7ea1313110a0c4',t:'MTc2NDcxODQxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

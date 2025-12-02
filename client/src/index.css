@@ -2,47 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
-/* LIGHT MODE */
+/* LIGHT MODE - BookIt Booking App Theme */
 :root {
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
-  --background: 210 6% 98%;
-  --foreground: 215 20% 12%;
-  --border: 210 6% 90%;
-  --card: 210 6% 96%;
-  --card-foreground: 215 18% 14%;
-  --card-border: 210 6% 92%;
-  --sidebar: 210 6% 94%;
-  --sidebar-foreground: 215 18% 14%;
-  --sidebar-border: 210 6% 88%;
-  --sidebar-primary: 238 70% 28%;
-  --sidebar-primary-foreground: 238 65% 97%;
-  --sidebar-accent: 210 8% 85%;
-  --sidebar-accent-foreground: 215 20% 12%;
-  --sidebar-ring: 238 70% 60%;
-  --popover: 210 6% 92%;
-  --popover-foreground: 215 18% 14%;
-  --popover-border: 210 6% 86%;
-  --primary: 238 70% 28%;
-  --primary-foreground: 238 65% 97%;
-  --secondary: 210 8% 88%;
-  --secondary-foreground: 215 18% 14%;
-  --muted: 210 10% 90%;
-  --muted-foreground: 215 14% 36%;
-  --accent: 210 10% 92%;
-  --accent-foreground: 215 18% 14%;
-  --destructive: 0 72% 32%;
-  --destructive-foreground: 0 65% 97%;
-  --input: 210 12% 75%;
-  --ring: 238 70% 60%;
-  --chart-1: 238 70% 35%;
-  --chart-2: 272 65% 38%;
-  --chart-3: 195 75% 32%;
-  --chart-4: 168 70% 30%;
-  --chart-5: 24 75% 35%;
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --card-border: 214 32% 91%;
+  --sidebar: 210 20% 96%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-border: 214 32% 91%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 40% 96%;
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-ring: 239 84% 67%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --popover-border: 214 32% 91%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 214 32% 91%;
+  --ring: 239 84% 67%;
+  --chart-1: 239 84% 67%;
+  --chart-2: 272 65% 58%;
+  --chart-3: 195 75% 52%;
+  --chart-4: 168 70% 50%;
+  --chart-5: 24 75% 55%;
   --font-sans: Open Sans, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
@@ -93,36 +93,36 @@
   --opaque-button-border-intensity: 9;
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
-  --background: 215 20% 8%;
-  --foreground: 210 6% 96%;
-  --border: 215 18% 16%;
-  --card: 215 20% 10%;
-  --card-foreground: 210 6% 96%;
-  --card-border: 215 18% 13%;
-  --sidebar: 215 20% 12%;
-  --sidebar-foreground: 210 6% 96%;
-  --sidebar-border: 215 18% 15%;
-  --sidebar-primary: 238 70% 28%;
-  --sidebar-primary-foreground: 238 65% 97%;
-  --sidebar-accent: 215 18% 16%;
-  --sidebar-accent-foreground: 210 6% 96%;
-  --sidebar-ring: 238 70% 60%;
-  --popover: 215 20% 14%;
-  --popover-foreground: 210 6% 96%;
-  --popover-border: 215 18% 17%;
-  --primary: 238 70% 28%;
-  --primary-foreground: 238 65% 97%;
-  --secondary: 215 18% 18%;
-  --secondary-foreground: 210 6% 96%;
-  --muted: 215 16% 20%;
-  --muted-foreground: 210 8% 68%;
-  --accent: 215 16% 18%;
-  --accent-foreground: 210 6% 96%;
-  --destructive: 0 72% 32%;
-  --destructive-foreground: 0 65% 97%;
-  --input: 215 18% 28%;
-  --ring: 238 70% 60%;
-  --chart-1: 238 70% 70%;
+  --background: 222 47% 11%;
+  --foreground: 210 40% 98%;
+  --border: 217 33% 17%;
+  --card: 222 47% 14%;
+  --card-foreground: 210 40% 98%;
+  --card-border: 217 33% 17%;
+  --sidebar: 222 47% 12%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-border: 217 33% 17%;
+  --sidebar-primary: 239 84% 67%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 217 33% 20%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-ring: 239 84% 67%;
+  --popover: 222 47% 14%;
+  --popover-foreground: 210 40% 98%;
+  --popover-border: 217 33% 17%;
+  --primary: 239 84% 67%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20% 65%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 217 33% 25%;
+  --ring: 239 84% 67%;
+  --chart-1: 239 84% 67%;
   --chart-2: 272 65% 72%;
   --chart-3: 195 75% 68%;
   --chart-4: 168 70% 70%;
@@ -200,6 +200,145 @@
   /* Hide ugly search cancel button in Chrome until we can style it properly */
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
+  }
+
+  /* Smooth transitions for booking app */
+  .fade-transition {
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  
+  .screen-hidden {
+    opacity: 0;
+    transform: translateX(30px);
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  .screen-visible {
+    opacity: 1;
+    transform: translateX(0);
+    position: relative;
+  }
+  
+  /* Category card effects */
+  .category-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  .category-card:active {
+    transform: translateY(-2px);
+  }
+  
+  /* Soft shadows */
+  .soft-shadow {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+  
+  .soft-shadow-lg {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Time slot animation */
+  .time-slot {
+    transition: all 0.2s ease;
+  }
+  
+  .time-slot:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Calendar day animation */
+  .calendar-day {
+    transition: all 0.2s ease;
+  }
+  
+  .calendar-day:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Smooth scroll */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles */
+  .focus-ring:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+  
+  /* Navigation styles */
+  .nav-btn {
+    color: #94A3B8;
+  }
+  
+  .nav-btn.active {
+    color: hsl(var(--primary));
+  }
+  
+  .nav-btn svg {
+    stroke: currentColor;
+  }
+  
+  /* Gradient backgrounds for categories */
+  .gradient-cafe {
+    background: linear-gradient(135deg, #F5F5F4 0%, #E7E5E4 100%);
+  }
+  
+  .gradient-beauty {
+    background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%);
+  }
+  
+  .gradient-barber {
+    background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+  }
+  
+  .gradient-wellness {
+    background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+  }
+  
+  .gradient-sports {
+    background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+  }
+  
+  .gradient-services {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  }
+
+  /* Hide scrollbar */
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Business card image placeholder gradients */
+  .business-gradient-1 {
+    background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+  }
+  
+  .business-gradient-2 {
+    background: linear-gradient(135deg, #374151 0%, #1F2937 100%);
+  }
+  
+  .business-gradient-3 {
+    background: linear-gradient(135deg, #4B5563 0%, #374151 100%);
+  }
+  
+  .business-gradient-4 {
+    background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
   }
 
   /* Placeholder styling for contentEditable div */

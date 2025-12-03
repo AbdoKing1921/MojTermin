@@ -60,6 +60,7 @@ function PublicRoutes() {
       <Route path="/search" component={SearchPage} />
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/business/:id" component={BusinessDetail} />
+      <Route path="/book/:id" component={BookingPage} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />

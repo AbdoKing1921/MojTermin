@@ -86,6 +86,24 @@ export async function registerRoutes(
       if (!business) {
         return res.status(404).json({ message: "Business not found" });
       }
+      
+      // Check if business is approved for public access
+      if (!business.isApproved || !business.isActive) {
+        // Allow owner or admin to access unapproved/inactive businesses
+        const user = req.user as any;
+        const userId = user?.dbUserId || user?.claims?.sub;
+        
+        let isAdmin = false;
+        if (userId) {
+          const dbUser = await storage.getUser(userId);
+          isAdmin = dbUser?.role === 'admin';
+        }
+        
+        if (!userId || (business.ownerId !== userId && !isAdmin)) {
+          return res.status(404).json({ message: "Business not found" });
+        }
+      }
+      
       res.json(business);
     } catch (error) {
       console.error("Error fetching business:", error);

@@ -62,7 +62,7 @@ export default function Landing() {
           <div className="text-center max-w-3xl mx-auto">
             <Badge variant="secondary" className="mb-4 px-3 py-1">
               <Zap className="w-3 h-3 mr-1" />
-              Već 100+ salona koristi MojTermin
+              Nova platforma za online zakazivanje
             </Badge>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4 animate-fade-in">
               Zakazivanje termina
@@ -124,42 +124,6 @@ export default function Landing() {
                 <Car className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Auto</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Statistics Section */}
-      <section className="py-12 border-y border-border bg-card/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Building2 className="w-5 h-5 text-primary" />
-                <span className="text-3xl sm:text-4xl font-bold text-foreground">150+</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Registrovanih salona</p>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Users className="w-5 h-5 text-primary" />
-                <span className="text-3xl sm:text-4xl font-bold text-foreground">5,000+</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Aktivnih korisnika</p>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span className="text-3xl sm:text-4xl font-bold text-foreground">25,000+</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Uspješnih rezervacija</p>
-            </div>
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Star className="w-5 h-5 text-primary" />
-                <span className="text-3xl sm:text-4xl font-bold text-foreground">4.9</span>
-              </div>
-              <p className="text-sm text-muted-foreground">Prosječna ocjena</p>
             </div>
           </div>
         </div>

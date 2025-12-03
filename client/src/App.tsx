@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { LoadingScreen } from "@/components/LoadingSpinner";
 
 import Landing from "@/pages/Landing";
 import Home from "@/pages/Home";
@@ -17,38 +18,49 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import CreateBusiness from "@/pages/CreateBusiness";
 import Analytics from "@/pages/Analytics";
 import AdminUsers from "@/pages/AdminUsers";
+import AdminBusinessApproval from "@/pages/AdminBusinessApproval";
 import NotFound from "@/pages/not-found";
+
+function AuthenticatedRoutes() {
+  return (
+    <Switch>
+      <Route path="/" component={Home} />
+      <Route path="/search" component={SearchPage} />
+      <Route path="/category/:slug" component={CategoryPage} />
+      <Route path="/business/:id" component={BusinessDetail} />
+      <Route path="/book/:id" component={BookingPage} />
+      <Route path="/bookings" component={UserBookings} />
+      <Route path="/profile" component={Profile} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/create-business" component={CreateBusiness} />
+      <Route path="/admin/analytics" component={Analytics} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/businesses" component={AdminBusinessApproval} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function PublicRoutes() {
+  return (
+    <Switch>
+      <Route path="/" component={Landing} />
+      <Route path="/search" component={SearchPage} />
+      <Route path="/category/:slug" component={CategoryPage} />
+      <Route path="/business/:id" component={BusinessDetail} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
-  return (
-    <Switch>
-      {isLoading || !isAuthenticated ? (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/search" component={SearchPage} />
-          <Route path="/category/:slug" component={CategoryPage} />
-          <Route path="/business/:id" component={BusinessDetail} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/search" component={SearchPage} />
-          <Route path="/category/:slug" component={CategoryPage} />
-          <Route path="/business/:id" component={BusinessDetail} />
-          <Route path="/book/:id" component={BookingPage} />
-          <Route path="/bookings" component={UserBookings} />
-          <Route path="/profile" component={Profile} />
-          <Route path="/admin" component={AdminDashboard} />
-          <Route path="/admin/create-business" component={CreateBusiness} />
-          <Route path="/admin/analytics" component={Analytics} />
-          <Route path="/admin/users" component={AdminUsers} />
-        </>
-      )}
-      <Route component={NotFound} />
-    </Switch>
-  );
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  return isAuthenticated ? <AuthenticatedRoutes /> : <PublicRoutes />;
 }
 
 function App() {

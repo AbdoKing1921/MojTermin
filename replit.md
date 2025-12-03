@@ -59,6 +59,13 @@ Preferred communication style: Simple, everyday language.
 - Session storage in PostgreSQL using connect-pg-simple
 - 7-day session TTL with secure, httpOnly cookies
 - `isAuthenticated` middleware for protected routes
+- Session stores `dbUserId` (actual DB user ID) to handle cases where OIDC sub differs from DB ID
+- All routes use `req.user.dbUserId || req.user.claims.sub` for consistent user lookup
+
+**Routing Architecture**
+- Wouter for client-side routing with separate AuthenticatedRoutes and PublicRoutes components
+- Routes are split to avoid fragments inside Switch (wouter requirement)
+- LoadingScreen shown while auth state is loading
 
 **Data Access Layer**
 - Storage abstraction via `IStorage` interface in `storage.ts`

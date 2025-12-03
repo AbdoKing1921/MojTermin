@@ -53,13 +53,15 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  await storage.upsertUser({
+  // Returns the actual user from DB (may have different ID if email already existed)
+  const user = await storage.upsertUser({
     id: claims["sub"],
     email: claims["email"],
     firstName: claims["first_name"],
     lastName: claims["last_name"],
     profileImageUrl: claims["profile_image_url"],
   });
+  return user;
 }
 
 export async function setupAuth(app: Express) {
@@ -74,10 +76,17 @@ export async function setupAuth(app: Express) {
     tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
-    verified(null, user);
+    const sessionUser: any = {};
+    updateUserSession(sessionUser, tokens);
+    
+    // Get the actual DB user (may have different ID if email already existed)
+    const dbUser = await upsertUser(tokens.claims());
+    
+    // Store the actual DB user ID in the session claims
+    // This ensures we can look up the user correctly even if OIDC sub differs from DB id
+    sessionUser.dbUserId = dbUser.id;
+    
+    verified(null, sessionUser);
   };
 
   // Keep track of registered strategies

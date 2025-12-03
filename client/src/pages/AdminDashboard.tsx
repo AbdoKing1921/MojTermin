@@ -206,6 +206,28 @@ export default function AdminDashboard() {
       </header>
 
       <main className="flex-1 overflow-y-auto px-5 py-5 pb-20 scroll-smooth">
+        {/* Super Admin Buttons - Always visible for admins */}
+        {user?.role === "admin" && (
+          <div className="mb-6 space-y-3">
+            <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-primary" />
+              Glavni Administrator
+            </h2>
+            <Link href="/admin/businesses">
+              <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-approve-businesses">
+                <Building2 className="w-4 h-4" />
+                Odobravanje salona
+              </Button>
+            </Link>
+            <Link href="/admin/users">
+              <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-manage-users">
+                <Shield className="w-4 h-4" />
+                Upravljanje korisnicima
+              </Button>
+            </Link>
+          </div>
+        )}
+
         {!hasBusinesses ? (
           /* No businesses - prompt to create one */
           <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -558,12 +580,20 @@ export default function AdminDashboard() {
                 </Button>
               </Link>
               {user?.role === "admin" && (
-                <Link href="/admin/users">
-                  <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-manage-users">
-                    <Shield className="w-4 h-4" />
-                    Upravljanje korisnicima
-                  </Button>
-                </Link>
+                <>
+                  <Link href="/admin/businesses">
+                    <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-approve-businesses">
+                      <Building2 className="w-4 h-4" />
+                      Odobravanje salona
+                    </Button>
+                  </Link>
+                  <Link href="/admin/users">
+                    <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-manage-users">
+                      <Shield className="w-4 h-4" />
+                      Upravljanje korisnicima
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
           </>

@@ -67,7 +67,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get('/api/businesses/:id', async (req, res) => {
+  app.get('/api/businesses/:id', async (req: any, res) => {
     try {
       const business = await storage.getBusinessById(req.params.id);
       if (!business) {
@@ -77,8 +77,7 @@ export async function registerRoutes(
       // Check if business is approved for public access
       if (!business.isApproved || !business.isActive) {
         // Allow owner or admin to access unapproved/inactive businesses
-        const user = req.user as any;
-        const userId = user?.dbUserId || user?.claims?.sub;
+        const userId = (req.session as any)?.userId;
         
         let isAdmin = false;
         if (userId) {

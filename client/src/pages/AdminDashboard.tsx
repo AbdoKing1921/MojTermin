@@ -42,6 +42,27 @@ export default function AdminDashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
 
+  const { data: businesses, isLoading: businessesLoading } = useQuery<Business[]>({
+    queryKey: ["/api/admin/businesses"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: stats } = useQuery<OwnerStats>({
+    queryKey: ["/api/admin/stats"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingWithUser[]>({
+    queryKey: [`/api/admin/businesses/${selectedBusiness}/bookings`],
+    enabled: !!selectedBusiness,
+  });
+
+  useEffect(() => {
+    if (businesses && businesses.length > 0 && !selectedBusiness) {
+      setSelectedBusiness(businesses[0].id);
+    }
+  }, [businesses, selectedBusiness]);
+
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
@@ -55,28 +76,13 @@ export default function AdminDashboard() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
-  const { data: businesses, isLoading: businessesLoading } = useQuery<Business[]>({
-    queryKey: ["/api/admin/businesses"],
-    enabled: isAuthenticated,
-  });
-
-  const { data: stats } = useQuery<OwnerStats>({
-    queryKey: ["/api/admin/stats"],
-    enabled: isAuthenticated,
-  });
-
-  const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingWithUser[]>({
-    queryKey: ["/api/admin/businesses", selectedBusiness, "bookings"],
-    enabled: !!selectedBusiness,
-  });
-
   const updateStatusMutation = useMutation({
     mutationFn: async ({ bookingId, status }: { bookingId: string; status: string }) => {
       return apiRequest("PATCH", `/api/admin/bookings/${bookingId}/status`, { status });
     },
     onSuccess: () => {
       toast({ title: "Status ažuriran" });
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/businesses", selectedBusiness, "bookings"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/businesses/${selectedBusiness}/bookings`] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stats"] });
     },
     onError: (error: Error) => {

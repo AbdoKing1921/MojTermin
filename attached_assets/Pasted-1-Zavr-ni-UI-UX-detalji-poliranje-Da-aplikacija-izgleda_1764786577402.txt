@@ -1,0 +1,164 @@
+1. Završni UI/UX detalji (poliranje)
+
+Da aplikacija izgleda “skupo” i profesionalno:
+
+Ujednači fontove i stilove (headeri, dugmad, kartice)
+
+Poravnanja i razmaci (padding, margin)
+
+Ujednačene boje i ikonice
+
+Animacije (minimalne, ali daju premium osjećaj)
+
+Loading indikatori (spinner kad otvaraš kalendar, rezervacije…)
+
+Error message i success message da izgledaju čisto i moderno
+
+
+✅ 2. Sistem za validaciju
+
+Vrlo važno:
+
+Validacija emaila, lozinke, imena
+
+Validacija unosa termina (da ne može preklopiti dvije rezervacije)
+
+Validacija radnog vremena (da salon ne stavi nemoguće sate)
+
+
+✅ 3. Sigurnost
+
+Hash lozinki (bcrypt ili sl.)
+
+JWT tokeni ako koristiš token auth
+
+Rate limit za API (bar osnovni)
+
+Escape inputa da ne može SQL injection (ako koristiš SQL)
+
+
+✅ 4. Email notifikacije
+
+Ako već nisu dodane:
+
+Potvrda rezervacije
+
+Podsjetnik 24h prije termina
+
+Email kada salon odobri / odbije termin
+
+
+✅ 5. Admin funkcije
+
+Ako hoćeš full sistem (super je za prodaju salona):
+
+Pregled svih korisnika
+
+Pregled svih salona
+
+Statistika: broj rezervacija, aktivni saloni, dnevni promet
+
+Ručno brisanje rezervacija
+
+
+✅ 6. SEO & Branding
+
+Ako aplikacija ima web verziju (landing page), dodaj:
+
+Naslov, opis, favicon (tvoj logo)
+
+OpenGraph tagove (za lijep prikaz na Facebook/Instagram)
+
+Meta description (radi Google pretrage)
+
+Screenshotovi aplikacije na landing page
+
+
+✅ 7. Landing page (prodajna stranica)
+
+Obavezno:
+
+Sekcija: “Šta je mojTermin?”
+
+Kako radi aplikacija (3 koraka)
+
+Benefiti za salone
+
+Screenshotovi dashboarda
+
+Kontakt forma
+
+Cijena (ili demo verzija)
+
+
+Ako želiš, mogu ti je dizajnirati odmah.
+
+✅ 8. Logo, ikone, brand paleta
+
+Već imaš logo, ali još treba:
+
+Set boja (primarna, sekundarna, pozadina)
+
+Set fontova (naslov + tekst)
+
+Ikonice za navigaciju (Home, Termini, Salon, Profil)
+
+
+✅ 9. Testovi (QA testing)
+
+Ne mora biti profesionalno, dovoljno je:
+
+Testiraj 20 rezervacija u različitim terminima
+
+Testiraj brisanje i pomjeranje termina
+
+Testiraj login i registraciju 10x
+
+Testiraj prijavu sa lošim podacima (da li javlja grešku)
+
+Testiraj radi li sve na:
+✔ Android
+✔ iPhone
+✔ Laptop
+✔ Tablet
+
+
+✅ 10. Demo salon i demo korisnik
+
+Vrlo korisno da ljudi mogu odmah probati aplikaciju:
+
+demo salon
+email: demo@salon.com
+lozinka: demo123
+
+demo korisnik
+email: user@test.com
+lozinka: test123
+
+
+✅ 11. Uslovi korištenja + Politika privatnosti
+
+Ako planiraš komercijalno:
+
+Uslovi korištenja
+
+Politika privatnosti
+
+GDPR napomena (kratka verzija je dovoljna)
+
+
+Mogu ti napisati oba dokumenta.
+
+✅ 12. Cjenovnik (za salone)
+
+Zvuči profesionalno ako imaš:
+
+Basic plan
+
+Pro plan
+
+Enterprise plan
+
+
+Mogu ti napisati i to.
+

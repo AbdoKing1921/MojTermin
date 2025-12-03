@@ -4,7 +4,7 @@
 
 MojTermin is a mobile-first booking platform for professional services in Serbia. The application enables users to discover and book appointments with various service providers including cafes, beauty salons, barbers, wellness centers, and sports facilities. Built with a focus on mobile-first design with Serbian language support (Cyrillic optimization), the platform follows a hybrid design approach combining Linear's sharp typography with Airbnb's booking clarity.
 
-The application uses a full-stack TypeScript architecture with React on the frontend and Express on the backend, with PostgreSQL as the database via Neon serverless. Authentication is handled through Replit's OIDC system.
+The application uses a full-stack TypeScript architecture with React on the frontend and Express on the backend, with PostgreSQL as the database via Neon serverless. Authentication is handled through a custom email/password system with bcrypt for password hashing, making the app fully portable and deployable anywhere.
 
 ## User Preferences
 
@@ -54,13 +54,15 @@ Preferred communication style: Simple, everyday language.
 - Route organization in single `routes.ts` file with logical grouping
 
 **Authentication & Authorization**
-- Replit OIDC (OpenID Connect) for authentication via `openid-client`
-- Passport.js strategy integration for session management
+- Custom email/password authentication system (no external dependencies)
+- bcrypt for secure password hashing (cost factor 10)
 - Session storage in PostgreSQL using connect-pg-simple
-- 7-day session TTL with secure, httpOnly cookies
+- 7-day session TTL with secure, httpOnly, sameSite cookies
 - `isAuthenticated` middleware for protected routes
-- Session stores `dbUserId` (actual DB user ID) to handle cases where OIDC sub differs from DB ID
-- All routes use `req.user.dbUserId || req.user.claims.sub` for consistent user lookup
+- Session stores `userId` for consistent user lookup
+- Endpoints: `/api/auth/register`, `/api/auth/login`, `/api/auth/user`, `/api/logout`
+- Frontend pages: `/login`, `/register`
+- App is fully portable - can be deployed to any platform without Replit dependencies
 
 **Routing Architecture**
 - Wouter for client-side routing with separate AuthenticatedRoutes and PublicRoutes components
@@ -87,7 +89,7 @@ Preferred communication style: Simple, everyday language.
 - **bookings**: Appointment records linking users, businesses, and services with status tracking
 - **reviews**: User feedback system with ratings
 - **blockedSlots**: Availability management for businesses
-- **sessions**: Server-side session storage for Replit Auth
+- **sessions**: Server-side session storage for custom auth
 
 **ORM Strategy**
 - Drizzle ORM for type-safe database queries
@@ -111,9 +113,9 @@ Preferred communication style: Simple, everyday language.
 - tailwind-merge via clsx for dynamic className composition
 
 **Authentication Service**
-- Replit OIDC provider (https://replit.com/oidc) for user authentication
-- openid-client for OIDC protocol implementation
-- Passport.js for Express session integration
+- Custom email/password authentication (fully portable)
+- bcryptjs for password hashing
+- express-session for session management
 
 **Database Service**
 - Neon serverless PostgreSQL via DATABASE_URL environment variable

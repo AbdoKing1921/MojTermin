@@ -28,6 +28,7 @@ export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserRole(id: string, role: string): Promise<User | undefined>;
   
   // Category operations
   getCategories(): Promise<Category[]>;
@@ -58,6 +59,14 @@ export interface IStorage {
   updateBookingStatus(id: string, status: string): Promise<Booking | undefined>;
   getBookingStats(userId: string): Promise<{ total: number; upcoming: number }>;
   
+  // Owner stats
+  getOwnerStats(ownerId: string): Promise<{
+    totalBookings: number;
+    todayBookings: number;
+    pendingBookings: number;
+    revenue: number;
+  }>;
+  
   // Review operations
   getReviewsByBusiness(businessId: string): Promise<(Review & { user?: User })[]>;
   createReview(review: InsertReview): Promise<Review>;
@@ -85,6 +94,15 @@ export class DatabaseStorage implements IStorage {
           updatedAt: new Date(),
         },
       })
+      .returning();
+    return user;
+  }
+
+  async updateUserRole(id: string, role: string): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ role, updatedAt: new Date() })
+      .where(eq(users.id, id))
       .returning();
     return user;
   }
@@ -266,6 +284,46 @@ export class DatabaseStorage implements IStorage {
     return {
       total: allBookings.length,
       upcoming: upcomingBookings.length,
+    };
+  }
+
+  async getOwnerStats(ownerId: string): Promise<{
+    totalBookings: number;
+    todayBookings: number;
+    pendingBookings: number;
+    revenue: number;
+  }> {
+    const today = new Date().toISOString().split("T")[0];
+    
+    // Get all owner's businesses
+    const ownerBusinesses = await this.getBusinessesByOwner(ownerId);
+    const businessIds = ownerBusinesses.map(b => b.id);
+    
+    if (businessIds.length === 0) {
+      return { totalBookings: 0, todayBookings: 0, pendingBookings: 0, revenue: 0 };
+    }
+    
+    // Get all bookings for owner's businesses
+    const allBookings = await db
+      .select()
+      .from(bookings)
+      .where(
+        or(...businessIds.map(id => eq(bookings.businessId, id)))
+      );
+    
+    const todayBookings = allBookings.filter(b => b.date === today);
+    const pendingBookings = allBookings.filter(b => b.status === "pending");
+    const completedBookings = allBookings.filter(b => b.status === "completed" || b.status === "confirmed");
+    
+    const revenue = completedBookings.reduce((sum, b) => {
+      return sum + (parseFloat(b.totalPrice || "0") || 0);
+    }, 0);
+    
+    return {
+      totalBookings: allBookings.length,
+      todayBookings: todayBookings.length,
+      pendingBookings: pendingBookings.length,
+      revenue,
     };
   }
 

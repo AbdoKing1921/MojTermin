@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Mail, Phone, Calendar } from "lucide-react";
+import { LogOut, Mail, Phone, Calendar, Building2 } from "lucide-react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -150,16 +150,28 @@ export default function Profile() {
         </div>
 
         {/* Quick Actions */}
-        <Link href="/bookings">
-          <Button 
-            variant="outline" 
-            className="w-full justify-start gap-2 h-11"
-            data-testid="link-my-bookings"
-          >
-            <Calendar className="w-4 h-4" />
-            Moje rezervacije
-          </Button>
-        </Link>
+        <div className="space-y-2">
+          <Link href="/bookings">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-2 h-11"
+              data-testid="link-my-bookings"
+            >
+              <Calendar className="w-4 h-4" />
+              Moje rezervacije
+            </Button>
+          </Link>
+          <Link href="/admin">
+            <Button 
+              variant="outline" 
+              className="w-full justify-start gap-2 h-11"
+              data-testid="link-admin-panel"
+            >
+              <Building2 className="w-4 h-4" />
+              Admin Panel (za vlasnike)
+            </Button>
+          </Link>
+        </div>
       </main>
 
       <BottomNavigation />

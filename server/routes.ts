@@ -241,5 +241,182 @@ export async function registerRoutes(
     }
   });
 
+  // ==================== ADMIN/OWNER ROUTES ====================
+  
+  // Get current user's businesses (for owners)
+  app.get('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const ownerBusinesses = await storage.getBusinessesByOwner(userId);
+      res.json(ownerBusinesses);
+    } catch (error) {
+      console.error("Error fetching owner businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Get bookings for owner's business
+  app.get('/api/admin/businesses/:id/bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      if (business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized to view this business" });
+      }
+      
+      const businessBookings = await storage.getBookingsByBusiness(businessId);
+      res.json(businessBookings);
+    } catch (error) {
+      console.error("Error fetching business bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Update booking status (for owners)
+  app.patch('/api/admin/bookings/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const bookingId = req.params.id;
+      const { status } = req.body;
+      
+      if (!["pending", "confirmed", "completed", "cancelled"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+      
+      // Get booking and verify ownership
+      const booking = await storage.getBookingById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      const business = await storage.getBusinessById(booking.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized to modify this booking" });
+      }
+      
+      const updated = await storage.updateBookingStatus(bookingId, status);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating booking status:", error);
+      res.status(500).json({ message: "Failed to update booking" });
+    }
+  });
+
+  // Get admin dashboard stats
+  app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const stats = await storage.getOwnerStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching admin stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Create or update service
+  app.post('/api/admin/businesses/:id/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const serviceData = {
+        businessId,
+        name: req.body.name,
+        description: req.body.description || null,
+        price: req.body.price,
+        duration: req.body.duration,
+      };
+      
+      const service = await storage.createService(serviceData);
+      res.status(201).json(service);
+    } catch (error) {
+      console.error("Error creating service:", error);
+      res.status(500).json({ message: "Failed to create service" });
+    }
+  });
+
+  // Block time slot
+  app.post('/api/admin/businesses/:id/block-slot', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const blockedSlotData = {
+        businessId,
+        date: req.body.date,
+        startTime: req.body.startTime,
+        endTime: req.body.endTime,
+        reason: req.body.reason || null,
+      };
+      
+      const blockedSlot = await storage.createBlockedSlot(blockedSlotData);
+      res.status(201).json(blockedSlot);
+    } catch (error) {
+      console.error("Error blocking slot:", error);
+      res.status(500).json({ message: "Failed to block slot" });
+    }
+  });
+
+  // Update user role to business_owner
+  app.post('/api/admin/become-owner', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.updateUserRole(userId, "business_owner");
+      res.json(user);
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ message: "Failed to update role" });
+    }
+  });
+
+  // Create a new business
+  app.post('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      
+      // First, make user an owner if not already
+      await storage.updateUserRole(userId, "business_owner");
+      
+      const businessData = {
+        ownerId: userId,
+        categoryId: req.body.categoryId,
+        name: req.body.name,
+        description: req.body.description || null,
+        address: req.body.address || null,
+        city: req.body.city || null,
+        phone: req.body.phone || null,
+        email: req.body.email || null,
+        openTime: req.body.openTime || "09:00",
+        closeTime: req.body.closeTime || "18:00",
+        slotDuration: req.body.slotDuration || 30,
+      };
+      
+      const business = await storage.createBusiness(businessData);
+      res.status(201).json(business);
+    } catch (error) {
+      console.error("Error creating business:", error);
+      res.status(500).json({ message: "Failed to create business" });
+    }
+  });
+
   return httpServer;
 }

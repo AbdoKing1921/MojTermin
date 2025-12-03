@@ -13,6 +13,8 @@ import BookingPage from "@/pages/BookingPage";
 import UserBookings from "@/pages/UserBookings";
 import Profile from "@/pages/Profile";
 import SearchPage from "@/pages/SearchPage";
+import AdminDashboard from "@/pages/AdminDashboard";
+import CreateBusiness from "@/pages/CreateBusiness";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -36,6 +38,8 @@ function Router() {
           <Route path="/book/:id" component={BookingPage} />
           <Route path="/bookings" component={UserBookings} />
           <Route path="/profile" component={Profile} />
+          <Route path="/admin" component={AdminDashboard} />
+          <Route path="/admin/create-business" component={CreateBusiness} />
         </>
       )}
       <Route component={NotFound} />

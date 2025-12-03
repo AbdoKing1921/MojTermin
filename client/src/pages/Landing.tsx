@@ -7,8 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Calendar, Clock, Shield, CheckCircle, ArrowRight, Scissors, Sparkles, Coffee, 
   Users, BarChart3, Bell, Star, MessageSquare, Phone, Mail, MapPin,
-  Smartphone, Building2, Zap, Globe, Check
+  Smartphone, Building2, Zap, Globe, Check, TrendingUp, Heart, Award, Dumbbell, Car
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
@@ -86,22 +87,79 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Category Icons */}
-          <div className="flex items-center justify-center gap-4 mt-12">
-            <div className="w-12 h-12 rounded-xl gradient-barber flex items-center justify-center shadow-lg">
-              <Scissors className="w-6 h-6 text-white" />
+          {/* Category Cards */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mt-16 max-w-4xl mx-auto">
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl gradient-barber flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Scissors className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Frizeri</span>
             </div>
-            <div className="w-12 h-12 rounded-xl gradient-beauty flex items-center justify-center shadow-lg">
-              <Sparkles className="w-6 h-6 text-white" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl gradient-beauty flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Sparkles className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Kozmetika</span>
             </div>
-            <div className="w-12 h-12 rounded-xl gradient-wellness flex items-center justify-center shadow-lg">
-              <Users className="w-6 h-6 text-white" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl gradient-wellness flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Heart className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Wellness</span>
             </div>
-            <div className="w-12 h-12 rounded-xl gradient-cafe flex items-center justify-center shadow-lg">
-              <Coffee className="w-6 h-6 text-white" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl gradient-cafe flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Coffee className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Kafići</span>
             </div>
-            <div className="w-12 h-12 rounded-xl gradient-sports flex items-center justify-center shadow-lg">
-              <Globe className="w-6 h-6 text-white" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl gradient-sports flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Dumbbell className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Fitness</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                <Car className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Auto</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Statistics Section */}
+      <section className="py-12 border-y border-border bg-card/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Building2 className="w-5 h-5 text-primary" />
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">150+</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Registrovanih salona</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Users className="w-5 h-5 text-primary" />
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">5,000+</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Aktivnih korisnika</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Calendar className="w-5 h-5 text-primary" />
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">25,000+</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Uspješnih rezervacija</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Star className="w-5 h-5 text-primary" />
+                <span className="text-3xl sm:text-4xl font-bold text-foreground">4.9</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Prosječna ocjena</p>
             </div>
           </div>
         </div>
@@ -311,6 +369,124 @@ export default function Landing() {
                 </p>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <Badge variant="secondary" className="mb-4">
+              <Award className="w-3 h-3 mr-1" />
+              Svjedočanstva
+            </Badge>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
+              Šta kažu naši korisnici
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Pročitajte iskustva vlasnika salona koji su transformisali svoje poslovanje
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="border-2">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-1 mb-4">
+                  {[1,2,3,4,5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mb-4 italic">
+                  "Prije MojTermina sam gubila 2 sata dnevno na telefonske pozive. 
+                  Sada klijenti sami zakazuju i ja se fokusiram na posao."
+                </p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">AM</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-semibold">Amina M.</p>
+                    <p className="text-xs text-muted-foreground">Vlasnica kozmetičkog salona, Sarajevo</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-1 mb-4">
+                  {[1,2,3,4,5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mb-4 italic">
+                  "Broj propuštenih termina pao za 70% otkad koristimo SMS podsjetnike. 
+                  Najbolja investicija za naš frizerski salon."
+                </p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">DH</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-semibold">Damir H.</p>
+                    <p className="text-xs text-muted-foreground">Vlasnik frizerskog salona, Tuzla</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-1 mb-4">
+                  {[1,2,3,4,5].map((i) => (
+                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground mb-4 italic">
+                  "Analitika mi pomaže da vidim koje usluge su najpopularnije. 
+                  Prihod nam je porastao 25% u prvom mjesecu korištenja."
+                </p>
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-10 h-10">
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold">SB</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-semibold">Selma B.</p>
+                    <p className="text-xs text-muted-foreground">Vlasnica wellness centra, Mostar</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Trust Badges */}
+      <section className="py-12 bg-muted/30 border-y border-border">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+              Pouzdana platforma
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Shield className="w-5 h-5" />
+              <span className="text-sm font-medium">SSL Zaštita</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <CheckCircle className="w-5 h-5" />
+              <span className="text-sm font-medium">GDPR Usklađenost</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="w-5 h-5" />
+              <span className="text-sm font-medium">99.9% Uptime</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <TrendingUp className="w-5 h-5" />
+              <span className="text-sm font-medium">Konstantna nadogradnja</span>
+            </div>
           </div>
         </div>
       </section>

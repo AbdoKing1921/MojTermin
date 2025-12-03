@@ -161,16 +161,18 @@ export default function Profile() {
               Moje rezervacije
             </Button>
           </Link>
-          <Link href="/admin">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start gap-2 h-11"
-              data-testid="link-admin-panel"
-            >
-              <Building2 className="w-4 h-4" />
-              Admin Panel (za vlasnike)
-            </Button>
-          </Link>
+          {(user?.role === 'business_owner' || user?.role === 'admin') && (
+            <Link href="/admin">
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-2 h-11"
+                data-testid="link-admin-panel"
+              >
+                <Building2 className="w-4 h-4" />
+                Admin Panel
+              </Button>
+            </Link>
+          )}
         </div>
       </main>
 

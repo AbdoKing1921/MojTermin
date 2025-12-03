@@ -128,8 +128,22 @@ Preferred communication style: Simple, everyday language.
 - SESSION_SECRET environment variable for session encryption
 - 7-day cookie lifetime with secure flag
 
-**Planned/Optional Integrations** (based on package.json)
-- Potential email notifications via nodemailer
-- Potential payment processing via Stripe
-- Potential AI features via @google/generative-ai or OpenAI
-- Potential real-time features via WebSocket (ws package)
+**Email Notifications**
+- Email service implemented in `server/email.ts` using Resend API
+- Sends booking confirmations to customers on new bookings
+- Notifies business owners of new bookings
+- Sends status update emails when bookings are confirmed/cancelled
+- **Configuration**: Set `RESEND_API_KEY` secret to enable email sending
+- **Optional**: Set `FROM_EMAIL` env var for custom sender address (defaults to noreply@bookit.app)
+- Logs email content to console when RESEND_API_KEY is not configured
+
+**Admin Panel**
+- Available at `/admin` route for business owners
+- Allows creating new businesses, viewing booking stats, and managing reservations
+- Profile page links to admin panel for easy access
+- Ownership verification enforced on all admin API routes
+
+**Planned/Optional Integrations**
+- SMS notifications via Twilio (TODO)
+- Payment processing via Stripe (TODO)
+- Real-time features via WebSocket (ws package)

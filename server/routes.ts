@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBookingSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendBookingConfirmation, sendBookingStatusUpdate, sendOwnerNotification } from "./email";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -181,8 +182,42 @@ export async function registerRoutes(
 
       const booking = await storage.createBooking(bookingData);
       
-      // TODO: Send SMS and email notifications here
-      // This would integrate with Twilio and SendGrid APIs
+      // Send email notifications asynchronously (don't block response)
+      (async () => {
+        try {
+          const user = await storage.getUser(userId);
+          const business = await storage.getBusinessById(bookingData.businessId);
+          const service = bookingData.serviceId ? await storage.getServiceById(bookingData.serviceId) : null;
+          
+          if (user && business) {
+            const emailData = {
+              customerName: user.firstName || user.email || "Korisnik",
+              customerEmail: user.email || "",
+              businessName: business.name,
+              serviceName: service?.name || "Usluga",
+              date: new Date(bookingData.date).toLocaleDateString("sr-Latn"),
+              time: bookingData.time,
+              price: service?.price || "0",
+              bookingId: booking.id,
+            };
+            
+            // Send confirmation to customer
+            if (user.email) {
+              await sendBookingConfirmation(emailData);
+            }
+            
+            // Notify business owner
+            if (business.ownerId) {
+              const owner = await storage.getUser(business.ownerId);
+              if (owner?.email) {
+                await sendOwnerNotification(owner.email, emailData);
+              }
+            }
+          }
+        } catch (emailError) {
+          console.error("[EMAIL] Error sending booking notifications:", emailError);
+        }
+      })();
       
       res.status(201).json(booking);
     } catch (error) {
@@ -301,6 +336,34 @@ export async function registerRoutes(
       }
       
       const updated = await storage.updateBookingStatus(bookingId, status);
+      
+      // Send status update email notification asynchronously
+      if (status === "confirmed" || status === "cancelled") {
+        (async () => {
+          try {
+            const customer = await storage.getUser(booking.userId);
+            const service = booking.serviceId ? await storage.getServiceById(booking.serviceId) : null;
+            
+            if (customer?.email) {
+              const emailData = {
+                customerName: customer.firstName || customer.email || "Korisnik",
+                customerEmail: customer.email,
+                businessName: business.name,
+                serviceName: service?.name || "Usluga",
+                date: new Date(booking.date).toLocaleDateString("sr-Latn"),
+                time: booking.time,
+                price: service?.price || "0",
+                bookingId: booking.id,
+              };
+              
+              await sendBookingStatusUpdate(emailData, status as "confirmed" | "cancelled");
+            }
+          } catch (emailError) {
+            console.error("[EMAIL] Error sending status update notification:", emailError);
+          }
+        })();
+      }
+      
       res.json(updated);
     } catch (error) {
       console.error("Error updating booking status:", error);

@@ -97,7 +97,7 @@ export default function AdminDashboard() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
       }, 500);
     }
   }, [isAuthenticated, authLoading, toast]);
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
         return;
       }
       toast({ title: "Greška", description: error.message, variant: "destructive" });
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
         return;
       }
       toast({ title: "Greška", description: "Nije moguće blokirati termin", variant: "destructive" });

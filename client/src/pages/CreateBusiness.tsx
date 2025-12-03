@@ -47,7 +47,7 @@ export default function CreateBusiness() {
         variant: "destructive",
       });
       setTimeout(() => {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
       }, 500);
     }
   }, [isAuthenticated, authLoading, toast]);
@@ -83,7 +83,7 @@ export default function CreateBusiness() {
     },
     onError: (error: Error) => {
       if (isUnauthorizedError(error)) {
-        window.location.href = "/api/login";
+        window.location.href = "/login";
         return;
       }
       toast({ title: "Greška", description: error.message, variant: "destructive" });

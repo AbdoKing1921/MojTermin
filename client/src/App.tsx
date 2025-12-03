@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { LoadingScreen } from "@/components/LoadingSpinner";
 
 import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
 import Home from "@/pages/Home";
 import CategoryPage from "@/pages/CategoryPage";
 import BusinessDetail from "@/pages/BusinessDetail";
@@ -53,6 +55,8 @@ function PublicRoutes() {
   return (
     <Switch>
       <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/search" component={SearchPage} />
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/business/:id" component={BusinessDetail} />

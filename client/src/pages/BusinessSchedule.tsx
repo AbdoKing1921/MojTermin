@@ -209,7 +209,7 @@ export default function BusinessSchedule() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      window.location.href = "/api/login";
+      window.location.href = "/login";
     }
   }, [isAuthenticated, authLoading]);
 

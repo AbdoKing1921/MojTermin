@@ -9,7 +9,7 @@ export function ProfileHeader() {
   if (!isAuthenticated) {
     return (
       <a
-        href="/api/login"
+        href="/login"
         className="focus-ring w-9 h-9 rounded-lg bg-secondary flex items-center justify-center border border-border"
         data-testid="button-login"
         aria-label="Prijava"

@@ -43,7 +43,7 @@ export default function Landing() {
               <a href="#kontakt" className="text-sm text-muted-foreground hover:text-foreground transition-colors hidden sm:block" data-testid="link-contact">
                 Kontakt
               </a>
-              <a href="/api/login" data-testid="link-login-nav">
+              <a href="/login" data-testid="link-login-nav">
                 <Button size="sm" className="gap-1.5" data-testid="button-login-nav">
                   Prijava
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -72,7 +72,7 @@ export default function Landing() {
               Bez poziva, bez čekanja.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a href="/api/login" data-testid="link-hero-cta">
+              <a href="/login" data-testid="link-hero-cta">
                 <Button size="lg" className="w-full sm:w-auto gap-2 h-12 px-8" data-testid="button-hero-cta">
                   Počnite besplatno
                   <ArrowRight className="w-4 h-4" />
@@ -544,7 +544,7 @@ export default function Landing() {
           <p className="text-primary-foreground/80 mb-8 max-w-xl mx-auto">
             Pridružite se stotinama zadovoljnih salona koji već koriste MojTermin za upravljanje terminima.
           </p>
-          <a href="/api/login" data-testid="link-cta-register">
+          <a href="/login" data-testid="link-cta-register">
             <Button size="lg" variant="secondary" className="gap-2" data-testid="button-cta-register">
               Registrujte se besplatno
               <ArrowRight className="w-4 h-4" />

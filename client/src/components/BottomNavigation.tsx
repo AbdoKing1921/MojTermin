@@ -31,7 +31,7 @@ export function BottomNavigation() {
           return (
             <a
               key={item.path}
-              href="/api/login"
+              href="/login"
               className="focus-ring flex flex-col items-center gap-0.5 py-2 px-4 rounded-lg transition-colors nav-btn"
               data-testid={`nav-${item.label.toLowerCase()}`}
               aria-label={item.label}

@@ -1,0 +1,350 @@
+Želim da napraviš kompletnu web aplikaciju za rezervaciju termina za beauty salone, frizerske salone i barber shopove. Aplikacija mora biti urađena u Replitu i treba da bude potpuno funkcionalna. U nastavku je kompletan detaljan plan šta tačno treba da izgradiš.
+
+
+---
+
+1. Opis aplikacije
+
+Potrebna mi je moderna web aplikacija koja omogućava korisnicima da rezervišu termine, a salonima da upravljaju rezervacijama, uslugama, zaposlenima i radnim vremenom. Aplikacija treba da radi na desktopu i mobilnim uređajima.
+
+
+---
+
+2. Funkcionalnosti za korisnike (klijente)
+
+Registracija i login
+
+Pregled salona
+
+Pregled usluga (naziv, opis, trajanje, cijena)
+
+Odabir zaposlenog ako postoji više radnika
+
+Pregled dostupnih termina prikazan kroz kalendar
+
+Rezervacija termina
+
+Otkazivanje termina
+
+Pregled svoje historije rezervacija
+
+Email notifikacija nakon uspješne rezervacije
+
+Email potvrda ili odbijanje termina (ako salon ručno odobrava)
+
+
+
+---
+
+3. Funkcionalnosti za vlasnike salona
+
+Registracija salona i login
+
+Dashboard sa pregledom dnevnih, sedmičnih i mjesečnih termina
+
+Dodavanje, uređivanje i brisanje usluga
+
+Postavljanje trajanja svake usluge (30 min, 45 min, 60 min...)
+
+Postavljanje cijena
+
+Upravljanje radnim vremenom i pauzama
+
+Upravljanje zaposlenima (ime, radno vrijeme, usluge koje pružaju)
+
+Ručno dodavanje termina
+
+Brisanje ili uređivanje termina
+
+Automatsko obavještenje e-mailom korisniku
+
+Upload slike salona i opis profila
+
+Pregled ocjena i komentara korisnika (ako dodamo recenzije)
+
+
+
+---
+
+4. Admin panel (za mene kao vlasnika aplikacije)
+
+Login za admina
+
+Pregled svih salona
+
+Odobravanje novih salona prije aktiviranja profila
+
+Pregled i upravljanje korisnicima
+
+Uvid u statistiku rezervacija svih salona
+
+Brisanje i moderiranje salona po potrebi
+
+
+
+---
+
+5. Funkcionalnosti rezervacijskog sistema
+
+Kalendar treba da prikazuje samo slobodne termine
+
+Termin se automatski označava kao zauzet kada ga neko rezerviše
+
+Usluga ima određeno trajanje, pa kalendar mora blokirati vrijeme nakon početka
+
+Onemogućiti duple rezervacije
+
+Ako je radno vrijeme od 09:00 do 17:00 i usluga traje 45 min, sistem mora da računa sve slotove automatski
+
+Saloni mogu definisati pauzu (npr. 12:00–12:30)
+
+Mogućnost neradnih dana i praznika
+
+Email notifikacija korisniku 24h prije termina (ako može)
+
+
+
+---
+
+6. UI/UX zahtjevi
+
+Moderan, čist, minimalan dizajn
+
+Mobilna verzija obavezna (responsive)
+
+Salon ima svoj profil:
+
+Slika salona
+
+Kratki opis
+
+Lista usluga
+
+Cjenovnik
+
+Radno vrijeme
+
+Lokacija
+
+
+Kalendar prikazuje vrijeme po satima/minutama
+
+Jasno označeni zauzeti i slobodni termini
+
+
+
+---
+
+7. Tehnički zahtjevi
+
+Replit projekt
+
+Aplikacija mora biti napravljena i pokrenuta na Replit platformi.
+
+Backend
+
+Može biti u:
+
+Node.js (Express) preporučeno
+ili
+
+Python Flask
+
+
+Baza podataka
+
+Koristi:
+
+Supabase ili Firebase ili PostgreSQL (jedan od njih, po tvom izboru)
+
+
+Autentifikacija
+
+Registracija i login korisnika, salona i admina
+
+JWT tokeni ili Firebase auth
+
+
+Email sistem
+
+Koristi jedan servis:
+
+Resend
+
+EmailJS
+
+Nodemailer
+
+
+API
+
+Potrebni API endpointi za:
+
+korisnike
+
+salone
+
+rezervacije
+
+usluge
+
+zaposlenike
+
+admin funkcije
+
+
+
+---
+
+8. Struktura baze podataka
+
+Trebam ove tabele (ili kolekcije ako koristiš NoSQL):
+
+users
+
+id
+
+ime
+
+email
+
+lozinka
+
+uloga (user/salon/admin)
+
+broj telefona
+
+
+salons
+
+id
+
+naziv
+
+opis
+
+slika URL
+
+lokacija
+
+radno vrijeme (od–do)
+
+pauza (od–do)
+
+vlasnik_id
+
+
+employees
+
+id
+
+salon_id
+
+ime
+
+usluge koje pruža
+
+radno vrijeme
+
+
+services
+
+id
+
+salon_id
+
+naziv
+
+opis
+
+cijena
+
+trajanje (minute)
+
+
+appointments
+
+id
+
+salon_id
+
+user_id
+
+employee_id
+
+service_id
+
+datum
+
+vrijeme_pocetka
+
+vrijeme_zavrsetka
+
+status (pending, confirmed, canceled)
+
+
+reviews (opcionalno)
+
+id
+
+user_id
+
+salon_id
+
+rating
+
+komentar
+
+
+
+---
+
+9. Šta sve trebaš generisati za mene
+
+Kompletan frontend
+
+Kompletan backend
+
+Kompletan admin panel
+
+Stranicu za korisnike
+
+Stranicu za salone
+
+Sistem rezervacija
+
+Integrisani kalendar
+
+Sistem notifikacija e-mailom
+
+Izgled i dizajn aplikacije
+
+Strukturu baze
+
+Povezivanje backend–frontend
+
+Deployment na Replitu
+
+README fajl sa uputama
+
+
+
+---
+
+10. Šta očekujem na kraju
+
+Potpuno funkcionalnu aplikaciju spremnu za korištenje
+
+Da mogu odmah registrovati salone i korisnike
+
+Da sistem rezervacija radi bez greške
+
+Da mogu testirati sve funkcije bez dodatne konfiguracije
+
+Da dobijem objašnjenje kako da dodajem salone i nove usluge
+
+
+
+---
+
+To je sve — napravi aplikaciju prema ovom kompletnom planu.

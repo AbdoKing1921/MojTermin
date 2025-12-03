@@ -6,6 +6,11 @@ import {
   bookings,
   reviews,
   blockedSlots,
+  employees,
+  employeeServices,
+  businessHours,
+  businessBreaks,
+  businessHolidays,
   type User,
   type UpsertUser,
   type Category,
@@ -20,9 +25,19 @@ import {
   type InsertReview,
   type BlockedSlot,
   type InsertBlockedSlot,
+  type Employee,
+  type InsertEmployee,
+  type EmployeeService,
+  type InsertEmployeeService,
+  type BusinessHour,
+  type InsertBusinessHour,
+  type BusinessBreak,
+  type InsertBusinessBreak,
+  type BusinessHoliday,
+  type InsertBusinessHoliday,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc, ilike, or, sql, gte, lte } from "drizzle-orm";
+import { eq, and, desc, asc, ilike, or, sql, gte, lte, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -38,6 +53,8 @@ export interface IStorage {
   
   // Business operations
   getBusinesses(categoryId?: string): Promise<Business[]>;
+  getAllBusinesses(): Promise<Business[]>; // For admin - includes unapproved
+  getPendingBusinesses(): Promise<Business[]>; // For admin - only unapproved
   getBusinessesByCategorySlug(slug: string): Promise<Business[]>;
   getPopularBusinesses(limit?: number): Promise<Business[]>;
   getBusinessById(id: string): Promise<Business | undefined>;
@@ -45,17 +62,48 @@ export interface IStorage {
   createBusiness(business: InsertBusiness): Promise<Business>;
   updateBusiness(id: string, business: Partial<InsertBusiness>): Promise<Business | undefined>;
   getBusinessesByOwner(ownerId: string): Promise<Business[]>;
+  approveBusiness(id: string, adminId: string): Promise<Business | undefined>;
+  rejectBusiness(id: string): Promise<void>;
+  
+  // Employee operations
+  getEmployeesByBusiness(businessId: string): Promise<Employee[]>;
+  getEmployeeById(id: string): Promise<Employee | undefined>;
+  createEmployee(employee: InsertEmployee): Promise<Employee>;
+  updateEmployee(id: string, employee: Partial<InsertEmployee>): Promise<Employee | undefined>;
+  deleteEmployee(id: string): Promise<void>;
+  
+  // Employee services operations
+  getEmployeeServices(employeeId: string): Promise<EmployeeService[]>;
+  addEmployeeService(employeeService: InsertEmployeeService): Promise<EmployeeService>;
+  removeEmployeeService(employeeId: string, serviceId: string): Promise<void>;
+  getEmployeesForService(serviceId: string): Promise<Employee[]>;
+  
+  // Business hours operations
+  getBusinessHours(businessId: string): Promise<BusinessHour[]>;
+  setBusinessHours(businessId: string, hours: InsertBusinessHour[]): Promise<BusinessHour[]>;
+  
+  // Business breaks operations
+  getBusinessBreaks(businessId: string): Promise<BusinessBreak[]>;
+  addBusinessBreak(breakData: InsertBusinessBreak): Promise<BusinessBreak>;
+  removeBusinessBreak(id: string): Promise<void>;
+  
+  // Business holidays operations
+  getBusinessHolidays(businessId: string): Promise<BusinessHoliday[]>;
+  addBusinessHoliday(holiday: InsertBusinessHoliday): Promise<BusinessHoliday>;
+  removeBusinessHoliday(id: string): Promise<void>;
   
   // Service operations
   getServicesByBusiness(businessId: string): Promise<Service[]>;
   getServiceById(id: string): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
+  updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
+  deleteService(id: string): Promise<void>;
   
   // Booking operations
-  getBookingsByUser(userId: string): Promise<(Booking & { business?: Business })[]>;
-  getBookingsByBusiness(businessId: string): Promise<(Booking & { user?: User })[]>;
+  getBookingsByUser(userId: string): Promise<(Booking & { business?: Business; employee?: Employee })[]>;
+  getBookingsByBusiness(businessId: string): Promise<(Booking & { user?: User; employee?: Employee; service?: Service })[]>;
   getBookingById(id: string): Promise<Booking | undefined>;
-  getBookedSlots(businessId: string, date: string): Promise<string[]>;
+  getBookedSlots(businessId: string, date: string, employeeId?: string): Promise<{ time: string; endTime: string | null }[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateBookingStatus(id: string, status: string): Promise<Booking | undefined>;
   getBookingStats(userId: string): Promise<{ total: number; upcoming: number }>;
@@ -83,7 +131,7 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   
   // Blocked slots operations
-  getBlockedSlots(businessId: string, date: string): Promise<BlockedSlot[]>;
+  getBlockedSlots(businessId: string, date: string, employeeId?: string): Promise<BlockedSlot[]>;
   getBlockedSlotsByDateRange(businessId: string, startDate: string, endDate: string): Promise<BlockedSlot[]>;
   getBlockedSlotById(id: string): Promise<BlockedSlot | undefined>;
   createBlockedSlot(blockedSlot: InsertBlockedSlot): Promise<BlockedSlot>;
@@ -140,12 +188,33 @@ export class DatabaseStorage implements IStorage {
     return newCategory;
   }
 
-  // Business operations
+  // Business operations - only approved and active for public
   async getBusinesses(categoryId?: string): Promise<Business[]> {
     if (categoryId) {
-      return db.select().from(businesses).where(eq(businesses.categoryId, categoryId));
+      return db.select().from(businesses).where(
+        and(
+          eq(businesses.categoryId, categoryId),
+          eq(businesses.isActive, true),
+          eq(businesses.isApproved, true)
+        )
+      );
     }
-    return db.select().from(businesses).where(eq(businesses.isActive, true));
+    return db.select().from(businesses).where(
+      and(
+        eq(businesses.isActive, true),
+        eq(businesses.isApproved, true)
+      )
+    );
+  }
+
+  // For admin - get all businesses including unapproved
+  async getAllBusinesses(): Promise<Business[]> {
+    return db.select().from(businesses).orderBy(desc(businesses.createdAt));
+  }
+
+  // For admin - get only pending (unapproved) businesses
+  async getPendingBusinesses(): Promise<Business[]> {
+    return db.select().from(businesses).where(eq(businesses.isApproved, false)).orderBy(desc(businesses.createdAt));
   }
 
   async getBusinessesByCategorySlug(slug: string): Promise<Business[]> {
@@ -158,7 +227,12 @@ export class DatabaseStorage implements IStorage {
     return db
       .select()
       .from(businesses)
-      .where(eq(businesses.isActive, true))
+      .where(
+        and(
+          eq(businesses.isActive, true),
+          eq(businesses.isApproved, true)
+        )
+      )
       .orderBy(desc(businesses.rating), desc(businesses.reviewCount))
       .limit(limit);
   }
@@ -176,6 +250,7 @@ export class DatabaseStorage implements IStorage {
       .where(
         and(
           eq(businesses.isActive, true),
+          eq(businesses.isApproved, true),
           or(
             ilike(businesses.name, searchTerm),
             ilike(businesses.description, searchTerm),
@@ -187,7 +262,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createBusiness(business: InsertBusiness): Promise<Business> {
-    const [newBusiness] = await db.insert(businesses).values(business).returning();
+    const [newBusiness] = await db.insert(businesses).values({
+      ...business,
+      isApproved: false, // Requires admin approval
+    }).returning();
     return newBusiness;
   }
 
@@ -202,6 +280,129 @@ export class DatabaseStorage implements IStorage {
 
   async getBusinessesByOwner(ownerId: string): Promise<Business[]> {
     return db.select().from(businesses).where(eq(businesses.ownerId, ownerId));
+  }
+
+  async approveBusiness(id: string, adminId: string): Promise<Business | undefined> {
+    const [updated] = await db
+      .update(businesses)
+      .set({
+        isApproved: true,
+        approvedAt: new Date(),
+        approvedBy: adminId,
+        updatedAt: new Date(),
+      })
+      .where(eq(businesses.id, id))
+      .returning();
+    return updated;
+  }
+
+  async rejectBusiness(id: string): Promise<void> {
+    await db.delete(businesses).where(eq(businesses.id, id));
+  }
+
+  // Employee operations
+  async getEmployeesByBusiness(businessId: string): Promise<Employee[]> {
+    return db.select().from(employees).where(eq(employees.businessId, businessId)).orderBy(asc(employees.name));
+  }
+
+  async getEmployeeById(id: string): Promise<Employee | undefined> {
+    const [employee] = await db.select().from(employees).where(eq(employees.id, id));
+    return employee;
+  }
+
+  async createEmployee(employee: InsertEmployee): Promise<Employee> {
+    const [newEmployee] = await db.insert(employees).values(employee).returning();
+    return newEmployee;
+  }
+
+  async updateEmployee(id: string, employee: Partial<InsertEmployee>): Promise<Employee | undefined> {
+    const [updated] = await db
+      .update(employees)
+      .set({ ...employee, updatedAt: new Date() })
+      .where(eq(employees.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteEmployee(id: string): Promise<void> {
+    // First delete employee services
+    await db.delete(employeeServices).where(eq(employeeServices.employeeId, id));
+    // Then delete employee
+    await db.delete(employees).where(eq(employees.id, id));
+  }
+
+  // Employee services operations
+  async getEmployeeServices(employeeId: string): Promise<EmployeeService[]> {
+    return db.select().from(employeeServices).where(eq(employeeServices.employeeId, employeeId));
+  }
+
+  async addEmployeeService(employeeService: InsertEmployeeService): Promise<EmployeeService> {
+    const [newEmployeeService] = await db.insert(employeeServices).values(employeeService).returning();
+    return newEmployeeService;
+  }
+
+  async removeEmployeeService(employeeId: string, serviceId: string): Promise<void> {
+    await db.delete(employeeServices).where(
+      and(
+        eq(employeeServices.employeeId, employeeId),
+        eq(employeeServices.serviceId, serviceId)
+      )
+    );
+  }
+
+  async getEmployeesForService(serviceId: string): Promise<Employee[]> {
+    const empServices = await db.select().from(employeeServices).where(eq(employeeServices.serviceId, serviceId));
+    if (empServices.length === 0) return [];
+    
+    const employeeIds = empServices.map(es => es.employeeId);
+    return db.select().from(employees).where(
+      and(
+        inArray(employees.id, employeeIds),
+        eq(employees.isActive, true)
+      )
+    );
+  }
+
+  // Business hours operations
+  async getBusinessHours(businessId: string): Promise<BusinessHour[]> {
+    return db.select().from(businessHours).where(eq(businessHours.businessId, businessId)).orderBy(asc(businessHours.dayOfWeek));
+  }
+
+  async setBusinessHours(businessId: string, hours: InsertBusinessHour[]): Promise<BusinessHour[]> {
+    // Delete existing hours
+    await db.delete(businessHours).where(eq(businessHours.businessId, businessId));
+    // Insert new hours
+    if (hours.length === 0) return [];
+    const inserted = await db.insert(businessHours).values(hours).returning();
+    return inserted;
+  }
+
+  // Business breaks operations
+  async getBusinessBreaks(businessId: string): Promise<BusinessBreak[]> {
+    return db.select().from(businessBreaks).where(eq(businessBreaks.businessId, businessId)).orderBy(asc(businessBreaks.dayOfWeek), asc(businessBreaks.startTime));
+  }
+
+  async addBusinessBreak(breakData: InsertBusinessBreak): Promise<BusinessBreak> {
+    const [newBreak] = await db.insert(businessBreaks).values(breakData).returning();
+    return newBreak;
+  }
+
+  async removeBusinessBreak(id: string): Promise<void> {
+    await db.delete(businessBreaks).where(eq(businessBreaks.id, id));
+  }
+
+  // Business holidays operations
+  async getBusinessHolidays(businessId: string): Promise<BusinessHoliday[]> {
+    return db.select().from(businessHolidays).where(eq(businessHolidays.businessId, businessId)).orderBy(asc(businessHolidays.date));
+  }
+
+  async addBusinessHoliday(holiday: InsertBusinessHoliday): Promise<BusinessHoliday> {
+    const [newHoliday] = await db.insert(businessHolidays).values(holiday).returning();
+    return newHoliday;
+  }
+
+  async removeBusinessHoliday(id: string): Promise<void> {
+    await db.delete(businessHolidays).where(eq(businessHolidays.id, id));
   }
 
   // Service operations
@@ -219,38 +420,63 @@ export class DatabaseStorage implements IStorage {
     return newService;
   }
 
+  async updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined> {
+    const [updated] = await db
+      .update(services)
+      .set(service)
+      .where(eq(services.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteService(id: string): Promise<void> {
+    // First delete employee services associations
+    await db.delete(employeeServices).where(eq(employeeServices.serviceId, id));
+    // Then delete service
+    await db.delete(services).where(eq(services.id, id));
+  }
+
   // Booking operations
-  async getBookingsByUser(userId: string): Promise<(Booking & { business?: Business })[]> {
+  async getBookingsByUser(userId: string): Promise<(Booking & { business?: Business; employee?: Employee })[]> {
     const result = await db
       .select({
         booking: bookings,
         business: businesses,
+        employee: employees,
       })
       .from(bookings)
       .leftJoin(businesses, eq(bookings.businessId, businesses.id))
+      .leftJoin(employees, eq(bookings.employeeId, employees.id))
       .where(eq(bookings.userId, userId))
       .orderBy(desc(bookings.date), desc(bookings.time));
     
     return result.map(r => ({
       ...r.booking,
       business: r.business || undefined,
+      employee: r.employee || undefined,
     }));
   }
 
-  async getBookingsByBusiness(businessId: string): Promise<(Booking & { user?: User })[]> {
+  async getBookingsByBusiness(businessId: string): Promise<(Booking & { user?: User; employee?: Employee; service?: Service })[]> {
     const result = await db
       .select({
         booking: bookings,
         user: users,
+        employee: employees,
+        service: services,
       })
       .from(bookings)
       .leftJoin(users, eq(bookings.userId, users.id))
+      .leftJoin(employees, eq(bookings.employeeId, employees.id))
+      .leftJoin(services, eq(bookings.serviceId, services.id))
       .where(eq(bookings.businessId, businessId))
       .orderBy(desc(bookings.date), desc(bookings.time));
     
     return result.map(r => ({
       ...r.booking,
       user: r.user || undefined,
+      employee: r.employee || undefined,
+      service: r.service || undefined,
     }));
   }
 
@@ -259,18 +485,23 @@ export class DatabaseStorage implements IStorage {
     return booking;
   }
 
-  async getBookedSlots(businessId: string, date: string): Promise<string[]> {
+  async getBookedSlots(businessId: string, date: string, employeeId?: string): Promise<{ time: string; endTime: string | null }[]> {
+    let conditions = and(
+      eq(bookings.businessId, businessId),
+      eq(bookings.date, date),
+      or(eq(bookings.status, "pending"), eq(bookings.status, "confirmed"))
+    );
+    
+    if (employeeId) {
+      conditions = and(conditions, eq(bookings.employeeId, employeeId));
+    }
+    
     const result = await db
-      .select({ time: bookings.time })
+      .select({ time: bookings.time, endTime: bookings.endTime })
       .from(bookings)
-      .where(
-        and(
-          eq(bookings.businessId, businessId),
-          eq(bookings.date, date),
-          or(eq(bookings.status, "pending"), eq(bookings.status, "confirmed"))
-        )
-      );
-    return result.map(r => r.time);
+      .where(conditions);
+    
+    return result;
   }
 
   async createBooking(booking: InsertBooking): Promise<Booking> {
@@ -493,16 +724,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Blocked slots operations
-  async getBlockedSlots(businessId: string, date: string): Promise<BlockedSlot[]> {
-    return db
-      .select()
-      .from(blockedSlots)
-      .where(
-        and(
-          eq(blockedSlots.businessId, businessId),
-          eq(blockedSlots.date, date)
-        )
-      );
+  async getBlockedSlots(businessId: string, date: string, employeeId?: string): Promise<BlockedSlot[]> {
+    let conditions = and(
+      eq(blockedSlots.businessId, businessId),
+      eq(blockedSlots.date, date)
+    );
+    
+    if (employeeId) {
+      conditions = and(conditions, eq(blockedSlots.employeeId, employeeId));
+    }
+    
+    return db.select().from(blockedSlots).where(conditions);
   }
 
   async getBlockedSlotsByDateRange(businessId: string, startDate: string, endDate: string): Promise<BlockedSlot[]> {

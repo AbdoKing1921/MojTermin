@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft, CalendarOff, Trash2, ChevronLeft, ChevronRight, BarChart3 } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft, CalendarOff, Trash2, ChevronLeft, ChevronRight, BarChart3, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -557,6 +557,14 @@ export default function AdminDashboard() {
                   Dodaj novi biznis
                 </Button>
               </Link>
+              {user?.role === "admin" && (
+                <Link href="/admin/users">
+                  <Button variant="outline" className="w-full gap-2 border-primary/30 text-primary" data-testid="button-manage-users">
+                    <Shield className="w-4 h-4" />
+                    Upravljanje korisnicima
+                  </Button>
+                </Link>
+              )}
             </div>
           </>
         )}

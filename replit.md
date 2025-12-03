@@ -143,6 +143,16 @@ Preferred communication style: Simple, everyday language.
 - Profile page links to admin panel for easy access
 - Ownership verification enforced on all admin API routes
 
+**Super Admin (Glavni Administrator)**
+- User with email `abdullahdemirovic7@gmail.com` is the main admin
+- Admin users have access to `/admin/users` for user management
+- Admins can change any user's role: customer, business_owner, or admin
+- Admin-only API routes under `/api/superadmin/` prefix
+- Roles:
+  - `customer` - Regular users who can book services
+  - `business_owner` - Can create/manage businesses and services
+  - `admin` - Full access including user management
+
 **SMS Notifications**
 - SMS service implemented in `server/sms.ts` using Twilio API
 - Sends booking confirmation SMS to customers

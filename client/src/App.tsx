@@ -16,6 +16,7 @@ import SearchPage from "@/pages/SearchPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import CreateBusiness from "@/pages/CreateBusiness";
 import Analytics from "@/pages/Analytics";
+import AdminUsers from "@/pages/AdminUsers";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +43,7 @@ function Router() {
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/admin/create-business" component={CreateBusiness} />
           <Route path="/admin/analytics" component={Analytics} />
+          <Route path="/admin/users" component={AdminUsers} />
         </>
       )}
       <Route component={NotFound} />

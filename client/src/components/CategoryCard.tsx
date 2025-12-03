@@ -21,22 +21,21 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
       href={`/category/${category.slug}`}
-      className={`category-card focus-ring ${category.gradient} rounded-xl p-4 text-left soft-shadow flex-shrink-0 w-40 block`}
+      className={`block ${category.gradient} rounded-2xl p-4 text-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm hover:shadow-md`}
       data-testid={`category-card-${category.slug}`}
     >
       <div 
-        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
-        style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2 bg-white/20"
       >
         <Icon 
-          className="w-5 h-5 text-white" 
+          className="w-6 h-6 text-white" 
           strokeWidth={2}
         />
       </div>
-      <h3 className="text-sm font-semibold text-white mb-0.5">
+      <h3 className="text-sm font-semibold text-white">
         {category.name}
       </h3>
-      <p className="text-xs text-white/70">
+      <p className="text-[11px] text-white/70 mt-0.5 line-clamp-1">
         {category.description}
       </p>
     </Link>

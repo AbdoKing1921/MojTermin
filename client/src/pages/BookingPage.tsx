@@ -1,19 +1,60 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Check, User } from "lucide-react";
+import { ArrowLeft, Check, User, Calendar, Clock, Sparkles, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
 import { BookingCalendar } from "@/components/BookingCalendar";
 import { TimeSlots } from "@/components/TimeSlots";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Business, Service, Employee, BusinessHour, BusinessBreak, BusinessHoliday } from "@shared/schema";
+
+interface StepIndicatorProps {
+  currentStep: number;
+  totalSteps: number;
+  labels: string[];
+}
+
+function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
+  return (
+    <div className="flex items-center justify-between mb-6">
+      {Array.from({ length: totalSteps }).map((_, index) => (
+        <div key={index} className="flex items-center flex-1">
+          <div className="flex flex-col items-center">
+            <div 
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+                index < currentStep 
+                  ? "bg-primary text-primary-foreground" 
+                  : index === currentStep 
+                    ? "bg-primary text-primary-foreground ring-4 ring-primary/20" 
+                    : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
+            </div>
+            <span className={`text-[10px] mt-1 font-medium ${
+              index <= currentStep ? "text-foreground" : "text-muted-foreground"
+            }`}>
+              {labels[index]}
+            </span>
+          </div>
+          {index < totalSteps - 1 && (
+            <div className={`flex-1 h-0.5 mx-2 ${
+              index < currentStep ? "bg-primary" : "bg-muted"
+            }`} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function BookingPage() {
   const { id } = useParams<{ id: string }>();
@@ -222,175 +263,202 @@ export default function BookingPage() {
     return emp?.name;
   };
 
-  const getServiceName = () => {
+  const getServiceInfo = () => {
     if (!selectedService || !services) return null;
-    const svc = services.find(s => s.id === selectedService);
-    return svc?.name;
+    return services.find(s => s.id === selectedService);
   };
+
+  // Calculate current step
+  let currentStep = 0;
+  if (hasServices && selectedService) currentStep = 1;
+  else if (!hasServices) currentStep = 0;
+  if (selectedDate) currentStep = hasServices ? 2 : 1;
+  if (selectedTime) currentStep = hasServices ? 3 : 2;
+
+  const stepLabels = hasServices 
+    ? ["Usluga", "Datum", "Vrijeme", "Potvrda"]
+    : ["Datum", "Vrijeme", "Potvrda"];
+  const totalSteps = stepLabels.length;
 
   return (
     <MobileContainer>
-      <header className="px-5 pt-5 pb-4 border-b border-border">
-        <div className="flex items-center gap-3">
+      {/* Header */}
+      <header className="px-5 pt-5 pb-4 border-b border-border bg-background">
+        <div className="flex items-center gap-3 mb-4">
           <Link href={`/business/${id}`}>
             <Button
               variant="ghost"
               size="icon"
-              className="w-9 h-9 rounded-lg"
+              className="w-10 h-10 rounded-xl"
               data-testid="button-back"
               aria-label="Nazad"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <div>
-            <h1 className="text-base font-semibold text-foreground" data-testid="text-booking-title">
+          <div className="flex-1">
+            <h1 className="text-lg font-semibold text-foreground" data-testid="text-booking-title">
               Zakažite termin
             </h1>
             <p className="text-xs text-muted-foreground">{business.name}</p>
           </div>
         </div>
+        
+        {/* Step Indicator */}
+        <StepIndicator 
+          currentStep={currentStep} 
+          totalSteps={totalSteps} 
+          labels={stepLabels} 
+        />
       </header>
 
-      <main className="flex-1 overflow-y-auto px-5 py-5 pb-24 scroll-smooth">
+      <main className="flex-1 overflow-y-auto px-5 py-5 pb-44 scroll-smooth">
+        {/* Services Selection */}
         {services && services.length > 0 && (
           <section className="mb-6">
-            <h3 className="text-sm font-semibold text-foreground mb-3">1. Odaberite uslugu</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">Odaberite uslugu</h3>
+            </div>
             <div className="space-y-2">
               {services.map((service) => (
-                <button
+                <Card
                   key={service.id}
-                  type="button"
-                  onClick={() => setSelectedService(service.id)}
-                  className={`w-full p-3 rounded-lg text-left border transition-colors ${
+                  className={`p-4 cursor-pointer transition-all ${
                     selectedService === service.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-foreground border-border hover:bg-secondary"
+                      ? "border-2 border-primary bg-primary/5"
+                      : "hover:border-primary/30"
                   }`}
+                  onClick={() => setSelectedService(service.id)}
                   data-testid={`service-${service.id}`}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">{service.name}</p>
-                      <p className={`text-xs mt-0.5 ${
-                        selectedService === service.id 
-                          ? "text-primary-foreground/70" 
-                          : "text-muted-foreground"
-                      }`}>
-                        {service.duration} min
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-semibold text-foreground">{service.name}</p>
+                        {selectedService === service.id && (
+                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                            <Check className="w-3 h-3 text-primary-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {service.duration} minuta
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold">{service.price} KM</span>
-                      {selectedService === service.id && (
-                        <Check className="w-4 h-4" />
-                      )}
-                    </div>
+                    <span className="text-base font-bold text-primary">{service.price} KM</span>
                   </div>
-                </button>
+                </Card>
               ))}
             </div>
           </section>
         )}
 
+        {/* Employee Selection */}
         {hasEmployees && (
           <section className="mb-6">
-            <h3 className="text-sm font-semibold text-foreground mb-3">2. Odaberite zaposlenog</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedEmployee(null)}
-                className={`p-3 rounded-lg text-center border transition-colors ${
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <User className="w-4 h-4 text-blue-500" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">Odaberite zaposlenog</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Card
+                className={`p-4 cursor-pointer transition-all ${
                   selectedEmployee === null
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-foreground border-border hover:bg-secondary"
+                    ? "border-2 border-primary bg-primary/5"
+                    : "hover:border-primary/30"
                 }`}
+                onClick={() => setSelectedEmployee(null)}
                 data-testid="employee-any"
               >
-                <div className="flex flex-col items-center gap-2">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    selectedEmployee === null ? "bg-primary-foreground/20" : "bg-secondary"
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    selectedEmployee === null ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}>
                     <User className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Bilo ko</p>
-                    <p className={`text-xs ${
-                      selectedEmployee === null 
-                        ? "text-primary-foreground/70" 
-                        : "text-muted-foreground"
-                    }`}>
-                      Prvi slobodan
-                    </p>
+                    <p className="text-sm font-semibold">Bilo ko</p>
+                    <p className="text-xs text-muted-foreground">Prvi slobodan</p>
                   </div>
                 </div>
-              </button>
+              </Card>
 
               {employees.map((employee) => (
-                <button
+                <Card
                   key={employee.id}
-                  type="button"
-                  onClick={() => setSelectedEmployee(employee.id)}
-                  className={`p-3 rounded-lg text-center border transition-colors ${
+                  className={`p-4 cursor-pointer transition-all ${
                     selectedEmployee === employee.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-foreground border-border hover:bg-secondary"
+                      ? "border-2 border-primary bg-primary/5"
+                      : "hover:border-primary/30"
                   }`}
+                  onClick={() => setSelectedEmployee(employee.id)}
                   data-testid={`employee-${employee.id}`}
                 >
-                  <div className="flex flex-col items-center gap-2">
-                    <Avatar className="w-10 h-10">
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <Avatar className={`w-12 h-12 ${selectedEmployee === employee.id ? "ring-2 ring-primary" : ""}`}>
                       {employee.imageUrl && (
                         <AvatarImage src={employee.imageUrl} alt={employee.name} />
                       )}
-                      <AvatarFallback className={selectedEmployee === employee.id ? "bg-primary-foreground/20" : ""}>
+                      <AvatarFallback className="text-sm font-semibold">
                         {employee.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium truncate max-w-full">{employee.name}</p>
+                      <p className="text-sm font-semibold truncate max-w-full">{employee.name}</p>
                       {employee.title && (
-                        <p className={`text-xs truncate max-w-full ${
-                          selectedEmployee === employee.id 
-                            ? "text-primary-foreground/70" 
-                            : "text-muted-foreground"
-                        }`}>
+                        <p className="text-xs text-muted-foreground truncate max-w-full">
                           {employee.title}
                         </p>
                       )}
                     </div>
                   </div>
-                </button>
+                </Card>
               ))}
             </div>
           </section>
         )}
 
+        {/* Date Selection */}
         <section className="mb-6">
-          <h3 className="text-sm font-semibold text-foreground mb-3">
-            {hasEmployees ? "3. Odaberite datum" : "2. Odaberite datum"}
-          </h3>
-          <BookingCalendar
-            selectedDate={selectedDate}
-            onDateSelect={setSelectedDate}
-            blockedDates={holidayDates}
-          />
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-green-500" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground">Odaberite datum</h3>
+          </div>
+          <Card className="p-4">
+            <BookingCalendar
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+              blockedDates={holidayDates}
+            />
+          </Card>
         </section>
 
+        {/* Time Selection */}
         {selectedDate && (
           <section className="mb-5">
-            <h3 className="text-sm font-semibold text-foreground mb-3">
-              {hasEmployees ? "4. Odaberite vrijeme" : "3. Odaberite vrijeme"}
-            </h3>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-orange-500" />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">Odaberite vrijeme</h3>
+            </div>
             {isClosed || isHoliday ? (
-              <div className="p-4 bg-secondary/50 rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">
+              <Card className="p-6 text-center">
+                <Clock className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-sm font-medium text-muted-foreground">
                   {isHoliday 
                     ? `Zatvoreno - ${holidayInfo?.label || "Praznik"}`
                     : "Zatvoreno na ovaj dan"
                   }
                 </p>
-              </div>
+              </Card>
             ) : (
               <TimeSlots
                 selectedTime={selectedTime}
@@ -405,22 +473,39 @@ export default function BookingPage() {
         )}
       </main>
 
-      <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-card/95 backdrop-blur-sm border-t border-border">
+      {/* Booking Summary & Confirm */}
+      <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-background/95 backdrop-blur-md border-t border-border safe-area-bottom">
+        {canBook && (
+          <Card className="p-3 mb-3 bg-muted/50">
+            <div className="flex items-center justify-between text-sm">
+              <div>
+                <p className="font-semibold text-foreground">
+                  {selectedDate?.toLocaleDateString("sr-Latn", { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'long' 
+                  })} u {selectedTime}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {getServiceInfo()?.name}
+                  {getEmployeeName() && ` • ${getEmployeeName()}`}
+                </p>
+              </div>
+              {getServiceInfo() && (
+                <span className="text-lg font-bold text-primary">{getServiceInfo()?.price} KM</span>
+              )}
+            </div>
+          </Card>
+        )}
         <Button
-          className="w-full h-11 text-sm font-semibold rounded-lg"
+          className="w-full h-12 text-base font-semibold rounded-xl shadow-lg"
           disabled={!canBook || createBookingMutation.isPending}
           onClick={() => createBookingMutation.mutate()}
           data-testid="button-confirm-booking"
         >
           {createBookingMutation.isPending ? "Zakazivanje..." : "Potvrdi rezervaciju"}
+          <ChevronRight className="w-5 h-5 ml-1" />
         </Button>
-        {canBook && (
-          <div className="text-center text-xs text-muted-foreground mt-2 space-y-0.5">
-            <p>{selectedDate?.toLocaleDateString("sr-Latn")} u {selectedTime}</p>
-            {getServiceName() && <p>{getServiceName()}</p>}
-            {getEmployeeName() && <p>sa {getEmployeeName()}</p>}
-          </div>
-        )}
       </footer>
     </MobileContainer>
   );

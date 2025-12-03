@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import { insertBookingSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendBookingConfirmation, sendBookingStatusUpdate, sendOwnerNotification } from "./email";
@@ -11,21 +11,8 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Setup auth middleware
+  // Setup auth middleware (includes /api/auth/login, /api/auth/register, /api/auth/user, /api/logout)
   await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      // Use dbUserId if available (handles case where OIDC sub differs from DB id)
-      const userId = req.user.dbUserId || req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
 
   // Categories routes
   app.get('/api/categories', async (req, res) => {
@@ -216,7 +203,7 @@ export async function registerRoutes(
   // Bookings routes (protected)
   app.get('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const bookings = await storage.getBookingsByUser(userId);
       res.json(bookings);
     } catch (error) {
@@ -227,7 +214,7 @@ export async function registerRoutes(
 
   app.get('/api/bookings/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const stats = await storage.getBookingStats(userId);
       res.json(stats);
     } catch (error) {
@@ -238,7 +225,7 @@ export async function registerRoutes(
 
   app.post('/api/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       
       const bookingData = {
         userId,
@@ -328,7 +315,7 @@ export async function registerRoutes(
 
   app.patch('/api/bookings/:id/cancel', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const bookingId = req.params.id;
       
       // Verify ownership
@@ -351,7 +338,7 @@ export async function registerRoutes(
   // Reviews routes (protected)
   app.post('/api/reviews', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       
       const reviewSchema = insertReviewSchema.extend({
         rating: z.number().min(1).max(5),
@@ -381,7 +368,7 @@ export async function registerRoutes(
   // Get current user's businesses (for owners)
   app.get('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const ownerBusinesses = await storage.getBusinessesByOwner(userId);
       res.json(ownerBusinesses);
     } catch (error) {
@@ -393,7 +380,7 @@ export async function registerRoutes(
   // Get bookings for owner's business
   app.get('/api/admin/businesses/:id/bookings', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       // Verify ownership
@@ -416,7 +403,7 @@ export async function registerRoutes(
   // Update booking status (for owners)
   app.patch('/api/admin/bookings/:id/status', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const bookingId = req.params.id;
       const { status } = req.body;
       
@@ -484,7 +471,7 @@ export async function registerRoutes(
   // Get admin dashboard stats
   app.get('/api/admin/stats', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const stats = await storage.getOwnerStats(userId);
       res.json(stats);
     } catch (error) {
@@ -496,7 +483,7 @@ export async function registerRoutes(
   // Get analytics data
   app.get('/api/admin/analytics', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const { startDate, endDate } = req.query;
       
       // Default to last 30 days if not specified
@@ -518,7 +505,7 @@ export async function registerRoutes(
   // Create or update service
   app.post('/api/admin/businesses/:id/services', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       // Verify ownership
@@ -546,7 +533,7 @@ export async function registerRoutes(
   // Block time slot
   app.post('/api/admin/businesses/:id/block-slot', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       // Verify ownership
@@ -574,7 +561,7 @@ export async function registerRoutes(
   // Get blocked slots for a business
   app.get('/api/admin/businesses/:id/blocked-slots', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       const { startDate, endDate } = req.query;
       
@@ -599,7 +586,7 @@ export async function registerRoutes(
   // Delete blocked slot
   app.delete('/api/admin/blocked-slots/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const slotId = req.params.id;
       
       // Get the blocked slot and verify ownership
@@ -625,7 +612,7 @@ export async function registerRoutes(
   // Update user role to business_owner
   app.post('/api/admin/become-owner', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const user = await storage.updateUserRole(userId, "business_owner");
       res.json(user);
     } catch (error) {
@@ -637,7 +624,7 @@ export async function registerRoutes(
   // Admin-only: Get all users
   app.get('/api/superadmin/users', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const currentUser = await storage.getUser(userId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -655,7 +642,7 @@ export async function registerRoutes(
   // Admin-only: Update any user's role
   app.patch('/api/superadmin/users/:id/role', isAuthenticated, async (req: any, res) => {
     try {
-      const adminId = req.user.dbUserId || req.user.claims.sub;
+      const adminId = req.user.id;
       const currentUser = await storage.getUser(adminId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -685,7 +672,7 @@ export async function registerRoutes(
   // Create a new business
   app.post('/api/admin/businesses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       
       // First, make user an owner if not already
       await storage.updateUserRole(userId, "business_owner");
@@ -717,7 +704,7 @@ export async function registerRoutes(
   // Get all employees for owner's business (including inactive)
   app.get('/api/admin/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       // Verify ownership
@@ -737,7 +724,7 @@ export async function registerRoutes(
   // Create employee
   app.post('/api/admin/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       // Verify ownership
@@ -767,7 +754,7 @@ export async function registerRoutes(
   // Update employee
   app.patch('/api/admin/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const employeeId = req.params.id;
       
       // Get employee and verify ownership
@@ -800,7 +787,7 @@ export async function registerRoutes(
   // Delete employee
   app.delete('/api/admin/employees/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const employeeId = req.params.id;
       
       // Get employee and verify ownership
@@ -825,7 +812,7 @@ export async function registerRoutes(
   // Assign service to employee
   app.post('/api/admin/employees/:id/services', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const employeeId = req.params.id;
       const { serviceId } = req.body;
       
@@ -855,7 +842,7 @@ export async function registerRoutes(
   // Remove service from employee
   app.delete('/api/admin/employees/:employeeId/services/:serviceId', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const { employeeId, serviceId } = req.params;
       
       // Verify ownership
@@ -880,7 +867,7 @@ export async function registerRoutes(
   // Get employee's services
   app.get('/api/admin/employees/:id/services', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const employeeId = req.params.id;
       
       const employee = await storage.getEmployeeById(employeeId);
@@ -906,7 +893,7 @@ export async function registerRoutes(
   // Set business hours
   app.put('/api/admin/businesses/:id/hours', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       const business = await storage.getBusinessById(businessId);
@@ -933,7 +920,7 @@ export async function registerRoutes(
   // Add business break
   app.post('/api/admin/businesses/:id/breaks', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       const business = await storage.getBusinessById(businessId);
@@ -960,7 +947,7 @@ export async function registerRoutes(
   // Delete business break
   app.delete('/api/admin/breaks/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const breakId = req.params.id;
       
       // We'd need to get the break first to verify ownership
@@ -976,7 +963,7 @@ export async function registerRoutes(
   // Add business holiday
   app.post('/api/admin/businesses/:id/holidays', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const businessId = req.params.id;
       
       const business = await storage.getBusinessById(businessId);
@@ -1012,7 +999,7 @@ export async function registerRoutes(
   // Update service
   app.patch('/api/admin/services/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const serviceId = req.params.id;
       
       const service = await storage.getServiceById(serviceId);
@@ -1043,7 +1030,7 @@ export async function registerRoutes(
   // Delete service
   app.delete('/api/admin/services/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const serviceId = req.params.id;
       
       const service = await storage.getServiceById(serviceId);
@@ -1069,7 +1056,7 @@ export async function registerRoutes(
   // Get all businesses (for super admin)
   app.get('/api/superadmin/businesses', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const currentUser = await storage.getUser(userId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -1087,7 +1074,7 @@ export async function registerRoutes(
   // Get pending businesses (for super admin)
   app.get('/api/superadmin/businesses/pending', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.dbUserId || req.user.claims.sub;
+      const userId = req.user.id;
       const currentUser = await storage.getUser(userId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -1105,7 +1092,7 @@ export async function registerRoutes(
   // Approve business
   app.patch('/api/superadmin/businesses/:id/approve', isAuthenticated, async (req: any, res) => {
     try {
-      const adminId = req.user.dbUserId || req.user.claims.sub;
+      const adminId = req.user.id;
       const currentUser = await storage.getUser(adminId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -1129,7 +1116,7 @@ export async function registerRoutes(
   // Reject/delete business
   app.delete('/api/superadmin/businesses/:id', isAuthenticated, async (req: any, res) => {
     try {
-      const adminId = req.user.dbUserId || req.user.claims.sub;
+      const adminId = req.user.id;
       const currentUser = await storage.getUser(adminId);
       
       if (!currentUser || currentUser.role !== "admin") {
@@ -1148,7 +1135,7 @@ export async function registerRoutes(
   // Toggle business active status
   app.patch('/api/superadmin/businesses/:id/status', isAuthenticated, async (req: any, res) => {
     try {
-      const adminId = req.user.dbUserId || req.user.claims.sub;
+      const adminId = req.user.id;
       const currentUser = await storage.getUser(adminId);
       
       if (!currentUser || currentUser.role !== "admin") {

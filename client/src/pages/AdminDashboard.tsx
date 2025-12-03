@@ -306,6 +306,36 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Business Management Links */}
+            {selectedBusiness && (
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <Link href={`/admin/business/${selectedBusiness}/employees`}>
+                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-employees">
+                    <Users className="w-3.5 h-3.5" />
+                    Zaposleni
+                  </Button>
+                </Link>
+                <Link href={`/admin/business/${selectedBusiness}/schedule`}>
+                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-schedule">
+                    <Clock className="w-3.5 h-3.5" />
+                    Radno vrijeme
+                  </Button>
+                </Link>
+                <Link href="/admin/analytics">
+                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-analytics">
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    Analitika
+                  </Button>
+                </Link>
+                <Link href="/admin/create-business">
+                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-new-business">
+                    <Plus className="w-3.5 h-3.5" />
+                    Novi biznis
+                  </Button>
+                </Link>
+              </div>
+            )}
+
             {/* Tabs */}
             <div className="flex gap-2 mb-6">
               <Button

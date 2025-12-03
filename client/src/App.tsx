@@ -19,6 +19,8 @@ import CreateBusiness from "@/pages/CreateBusiness";
 import Analytics from "@/pages/Analytics";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminBusinessApproval from "@/pages/AdminBusinessApproval";
+import EmployeeManagement from "@/pages/EmployeeManagement";
+import BusinessSchedule from "@/pages/BusinessSchedule";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedRoutes() {
@@ -36,6 +38,8 @@ function AuthenticatedRoutes() {
       <Route path="/admin/analytics" component={Analytics} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/businesses" component={AdminBusinessApproval} />
+      <Route path="/admin/business/:businessId/employees" component={EmployeeManagement} />
+      <Route path="/admin/business/:businessId/schedule" component={BusinessSchedule} />
       <Route component={NotFound} />
     </Switch>
   );

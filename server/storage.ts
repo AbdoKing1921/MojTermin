@@ -22,7 +22,7 @@ import {
   type InsertBlockedSlot,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, ilike, or, sql } from "drizzle-orm";
+import { eq, and, desc, asc, ilike, or, sql, gte, lte } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -73,7 +73,10 @@ export interface IStorage {
   
   // Blocked slots operations
   getBlockedSlots(businessId: string, date: string): Promise<BlockedSlot[]>;
+  getBlockedSlotsByDateRange(businessId: string, startDate: string, endDate: string): Promise<BlockedSlot[]>;
+  getBlockedSlotById(id: string): Promise<BlockedSlot | undefined>;
   createBlockedSlot(blockedSlot: InsertBlockedSlot): Promise<BlockedSlot>;
+  deleteBlockedSlot(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -381,9 +384,32 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
+  async getBlockedSlotsByDateRange(businessId: string, startDate: string, endDate: string): Promise<BlockedSlot[]> {
+    return db
+      .select()
+      .from(blockedSlots)
+      .where(
+        and(
+          eq(blockedSlots.businessId, businessId),
+          gte(blockedSlots.date, startDate),
+          lte(blockedSlots.date, endDate)
+        )
+      )
+      .orderBy(asc(blockedSlots.date), asc(blockedSlots.startTime));
+  }
+
+  async getBlockedSlotById(id: string): Promise<BlockedSlot | undefined> {
+    const [slot] = await db.select().from(blockedSlots).where(eq(blockedSlots.id, id));
+    return slot;
+  }
+
   async createBlockedSlot(blockedSlot: InsertBlockedSlot): Promise<BlockedSlot> {
     const [newBlockedSlot] = await db.insert(blockedSlots).values(blockedSlot).returning();
     return newBlockedSlot;
+  }
+
+  async deleteBlockedSlot(id: string): Promise<void> {
+    await db.delete(blockedSlots).where(eq(blockedSlots.id, id));
   }
 }
 

@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft, CalendarOff, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import type { Business, Booking, User } from "@shared/schema";
+import type { Business, Booking, User, BlockedSlot } from "@shared/schema";
 
 interface BookingWithUser extends Booking {
   user?: User;
@@ -41,6 +43,14 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"bookings" | "availability">("bookings");
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
+  const [blockStartTime, setBlockStartTime] = useState("09:00");
+  const [blockEndTime, setBlockEndTime] = useState("10:00");
+  const [blockReason, setBlockReason] = useState("");
 
   const { data: businesses, isLoading: businessesLoading } = useQuery<Business[]>({
     queryKey: ["/api/admin/businesses"],
@@ -54,6 +64,22 @@ export default function AdminDashboard() {
 
   const { data: bookings, isLoading: bookingsLoading } = useQuery<BookingWithUser[]>({
     queryKey: [`/api/admin/businesses/${selectedBusiness}/bookings`],
+    enabled: !!selectedBusiness,
+  });
+
+  const { data: blockedSlots } = useQuery<BlockedSlot[]>({
+    queryKey: [`/api/admin/businesses/${selectedBusiness}/blocked-slots`, selectedDate],
+    queryFn: async () => {
+      const startDate = new Date(selectedDate);
+      const endDate = new Date(selectedDate);
+      endDate.setDate(endDate.getDate() + 30);
+      const response = await fetch(
+        `/api/admin/businesses/${selectedBusiness}/blocked-slots?startDate=${startDate.toISOString().split("T")[0]}&endDate=${endDate.toISOString().split("T")[0]}`,
+        { credentials: "include" }
+      );
+      if (!response.ok) throw new Error("Failed to fetch blocked slots");
+      return response.json();
+    },
     enabled: !!selectedBusiness,
   });
 
@@ -93,6 +119,62 @@ export default function AdminDashboard() {
       toast({ title: "Greška", description: error.message, variant: "destructive" });
     },
   });
+
+  const blockSlotMutation = useMutation({
+    mutationFn: async (data: { date: string; startTime: string; endTime: string; reason?: string }) => {
+      return apiRequest("POST", `/api/admin/businesses/${selectedBusiness}/block-slot`, data);
+    },
+    onSuccess: () => {
+      toast({ title: "Termin blokiran", description: "Termin je uspješno blokiran" });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/businesses/${selectedBusiness}/blocked-slots`, selectedDate] });
+      setBlockReason("");
+    },
+    onError: (error: Error) => {
+      if (isUnauthorizedError(error)) {
+        window.location.href = "/api/login";
+        return;
+      }
+      toast({ title: "Greška", description: "Nije moguće blokirati termin", variant: "destructive" });
+    },
+  });
+
+  const deleteBlockedSlotMutation = useMutation({
+    mutationFn: async (slotId: string) => {
+      return apiRequest("DELETE", `/api/admin/blocked-slots/${slotId}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Blokada uklonjena" });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/businesses/${selectedBusiness}/blocked-slots`, selectedDate] });
+    },
+    onError: () => {
+      toast({ title: "Greška", description: "Nije moguće ukloniti blokadu", variant: "destructive" });
+    },
+  });
+
+  const handleBlockSlot = () => {
+    if (!selectedDate || !blockStartTime || !blockEndTime) return;
+    if (blockStartTime >= blockEndTime) {
+      toast({ title: "Greška", description: "Završno vrijeme mora biti nakon početnog", variant: "destructive" });
+      return;
+    }
+    blockSlotMutation.mutate({
+      date: selectedDate,
+      startTime: blockStartTime,
+      endTime: blockEndTime,
+      reason: blockReason || undefined,
+    });
+  };
+
+  const generateTimeOptions = () => {
+    const times = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 30) {
+        const time = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+        times.push(time);
+      }
+    }
+    return times;
+  };
 
   if (authLoading || businessesLoading) {
     return (
@@ -184,7 +266,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Business Selector */}
-            <div className="mb-6">
+            <div className="mb-4">
               <h2 className="text-sm font-semibold text-foreground mb-3">Vaši biznisi</h2>
               <div className="flex flex-wrap gap-2">
                 {businesses.map((business) => (
@@ -202,8 +284,32 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6">
+              <Button
+                variant={activeTab === "bookings" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTab("bookings")}
+                className="text-xs gap-1.5"
+                data-testid="tab-bookings"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                Rezervacije
+              </Button>
+              <Button
+                variant={activeTab === "availability" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveTab("availability")}
+                className="text-xs gap-1.5"
+                data-testid="tab-availability"
+              >
+                <CalendarOff className="w-3.5 h-3.5" />
+                Dostupnost
+              </Button>
+            </div>
+
             {/* Bookings List */}
-            {selectedBusiness && (
+            {activeTab === "bookings" && selectedBusiness && (
               <div>
                 <h2 className="text-sm font-semibold text-foreground mb-3">Rezervacije</h2>
                 {bookingsLoading ? (
@@ -291,6 +397,149 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Availability Calendar */}
+            {activeTab === "availability" && selectedBusiness && (
+              <div>
+                <h2 className="text-sm font-semibold text-foreground mb-3">Upravljanje dostupnošću</h2>
+                
+                {/* Date Navigator */}
+                <div className="flex items-center justify-between mb-4 bg-card rounded-xl p-3 border border-border">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const date = new Date(selectedDate);
+                      date.setDate(date.getDate() - 1);
+                      setSelectedDate(date.toISOString().split("T")[0]);
+                    }}
+                    data-testid="button-prev-day"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-foreground">
+                      {new Date(selectedDate).toLocaleDateString("sr-Latn", { 
+                        weekday: "long", 
+                        day: "numeric", 
+                        month: "long",
+                        year: "numeric"
+                      })}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      const date = new Date(selectedDate);
+                      date.setDate(date.getDate() + 1);
+                      setSelectedDate(date.toISOString().split("T")[0]);
+                    }}
+                    data-testid="button-next-day"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Block Slot Form */}
+                <div className="bg-card rounded-xl p-4 border border-border mb-4">
+                  <h3 className="text-xs font-semibold text-foreground mb-3">Blokiraj termin</h3>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground mb-1 block">Od</label>
+                      <Select value={blockStartTime} onValueChange={setBlockStartTime}>
+                        <SelectTrigger className="h-9 text-xs" data-testid="select-start-time">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateTimeOptions().map((time) => (
+                            <SelectItem key={time} value={time} className="text-xs">
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-muted-foreground mb-1 block">Do</label>
+                      <Select value={blockEndTime} onValueChange={setBlockEndTime}>
+                        <SelectTrigger className="h-9 text-xs" data-testid="select-end-time">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {generateTimeOptions().map((time) => (
+                            <SelectItem key={time} value={time} className="text-xs">
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="mb-3">
+                    <label className="text-[10px] text-muted-foreground mb-1 block">Razlog (opcionalno)</label>
+                    <Input
+                      value={blockReason}
+                      onChange={(e) => setBlockReason(e.target.value)}
+                      placeholder="npr. Pauza za ručak"
+                      className="h-9 text-xs"
+                      data-testid="input-block-reason"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleBlockSlot}
+                    disabled={blockSlotMutation.isPending}
+                    className="w-full text-xs"
+                    size="sm"
+                    data-testid="button-block-slot"
+                  >
+                    <CalendarOff className="w-3.5 h-3.5 mr-1.5" />
+                    {blockSlotMutation.isPending ? "Blokiram..." : "Blokiraj termin"}
+                  </Button>
+                </div>
+
+                {/* Blocked Slots List */}
+                <div>
+                  <h3 className="text-xs font-semibold text-foreground mb-3">Blokirani termini</h3>
+                  {blockedSlots && blockedSlots.length > 0 ? (
+                    <div className="space-y-2">
+                      {blockedSlots.map((slot) => (
+                        <div
+                          key={slot.id}
+                          className="bg-card rounded-lg p-3 border border-border flex items-center justify-between"
+                          data-testid={`blocked-slot-${slot.id}`}
+                        >
+                          <div>
+                            <p className="text-xs font-medium text-foreground">
+                              {new Date(slot.date).toLocaleDateString("sr-Latn")} • {slot.startTime} - {slot.endTime}
+                            </p>
+                            {slot.reason && (
+                              <p className="text-[10px] text-muted-foreground">{slot.reason}</p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-8 h-8 text-destructive hover:text-destructive"
+                            onClick={() => deleteBlockedSlotMutation.mutate(slot.id)}
+                            disabled={deleteBlockedSlotMutation.isPending}
+                            data-testid={`delete-blocked-${slot.id}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6">
+                      <CalendarOff className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" />
+                      <p className="text-sm text-muted-foreground">Nema blokiranih termina</p>
+                      <p className="text-xs text-muted-foreground/60">Blokirajte termine kada niste dostupni</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

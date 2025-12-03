@@ -474,6 +474,57 @@ export async function registerRoutes(
     }
   });
 
+  // Get blocked slots for a business
+  app.get('/api/admin/businesses/:id/blocked-slots', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      const { startDate, endDate } = req.query;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const blockedSlots = await storage.getBlockedSlotsByDateRange(
+        businessId,
+        startDate as string,
+        endDate as string
+      );
+      res.json(blockedSlots);
+    } catch (error) {
+      console.error("Error fetching blocked slots:", error);
+      res.status(500).json({ message: "Failed to fetch blocked slots" });
+    }
+  });
+
+  // Delete blocked slot
+  app.delete('/api/admin/blocked-slots/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const slotId = req.params.id;
+      
+      // Get the blocked slot and verify ownership
+      const blockedSlot = await storage.getBlockedSlotById(slotId);
+      if (!blockedSlot) {
+        return res.status(404).json({ message: "Blocked slot not found" });
+      }
+      
+      // Verify the business belongs to this user
+      const business = await storage.getBusinessById(blockedSlot.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteBlockedSlot(slotId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting blocked slot:", error);
+      res.status(500).json({ message: "Failed to delete blocked slot" });
+    }
+  });
+
   // Update user role to business_owner
   app.post('/api/admin/become-owner', isAuthenticated, async (req: any, res) => {
     try {

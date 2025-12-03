@@ -6,7 +6,7 @@ import { SearchInput } from "@/components/SearchInput";
 import { CategoryCard, defaultCategories } from "@/components/CategoryCard";
 import { BusinessCard } from "@/components/BusinessCard";
 import { CategorySkeleton, CardSkeleton } from "@/components/LoadingSpinner";
-import { ChevronRight, TrendingUp, Sparkles } from "lucide-react";
+import { ChevronRight, TrendingUp, Grid3X3, Star } from "lucide-react";
 import { Link } from "wouter";
 import type { Category, Business } from "@shared/schema";
 
@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-5 pt-6 pb-5 bg-gradient-to-b from-primary/5 to-transparent">
+      <header className="px-5 pt-6 pb-6 bg-gradient-to-b from-primary/5 to-transparent">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground" data-testid="text-app-name">
@@ -49,13 +49,13 @@ export default function Home() {
       <main className="flex-1 overflow-y-auto pb-24 scroll-smooth">
         {/* Categories Section */}
         <section className="px-5 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-sm">
+                <Grid3X3 className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-foreground" data-testid="text-categories-title">
+                <h2 className="text-base font-bold text-foreground" data-testid="text-categories-title">
                   Kategorije
                 </h2>
                 <p className="text-xs text-muted-foreground">Izaberite vrstu usluge</p>
@@ -82,19 +82,19 @@ export default function Home() {
 
         {/* Popular Businesses Section */}
         <section className="px-5">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-amber-600" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center shadow-sm">
+                <Star className="w-5 h-5 text-amber-500" />
               </div>
               <div>
-                <h2 className="text-base font-semibold text-foreground" data-testid="text-popular-title">
+                <h2 className="text-base font-bold text-foreground" data-testid="text-popular-title">
                   Popularno
                 </h2>
                 <p className="text-xs text-muted-foreground">Najbolje ocijenjeni saloni</p>
               </div>
             </div>
-            <Link href="/search" className="flex items-center gap-1 text-xs font-medium text-primary hover:underline">
+            <Link href="/search" className="flex items-center gap-1 text-xs font-semibold text-primary hover:underline bg-primary/10 px-3 py-1.5 rounded-full">
               Vidi sve
               <ChevronRight className="w-3.5 h-3.5" />
             </Link>
@@ -117,9 +117,15 @@ export default function Home() {
                 />
               ))
             ) : (
-              <div className="flex items-center justify-center w-full py-12 bg-muted/30 rounded-2xl">
-                <p className="text-sm text-muted-foreground">
+              <div className="flex flex-col items-center justify-center w-full py-16 bg-muted/30 rounded-2xl">
+                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mb-4">
+                  <Star className="w-7 h-7 text-muted-foreground/40" />
+                </div>
+                <p className="text-sm font-medium text-muted-foreground">
                   Nema dostupnih salona
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  Vratite se uskoro
                 </p>
               </div>
             )}

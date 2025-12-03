@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Coffee, Sparkles, Scissors, Activity, CircleDot, Wrench } from "lucide-react";
+import { Coffee, Sparkles, Scissors, Heart, Dumbbell, Wrench } from "lucide-react";
 import type { Category } from "@shared/schema";
 
 interface CategoryCardProps {
@@ -10,8 +10,8 @@ const iconMap: Record<string, typeof Coffee> = {
   coffee: Coffee,
   sparkles: Sparkles,
   scissors: Scissors,
-  activity: Activity,
-  globe: CircleDot,
+  activity: Heart,
+  globe: Dumbbell,
   wrench: Wrench,
 };
 
@@ -21,23 +21,29 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
       href={`/category/${category.slug}`}
-      className={`block ${category.gradient} rounded-2xl p-4 text-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-sm hover:shadow-md`}
+      className={`block ${category.gradient} rounded-2xl p-4 text-center hover:scale-[1.02] active:scale-[0.98] transition-all shadow-md hover:shadow-lg overflow-hidden relative`}
       data-testid={`category-card-${category.slug}`}
     >
-      <div 
-        className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2 bg-white/20"
-      >
-        <Icon 
-          className="w-6 h-6 text-white" 
-          strokeWidth={2}
-        />
+      {/* Decorative circles */}
+      <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/10" />
+      <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-white/5" />
+      
+      <div className="relative z-10">
+        <div 
+          className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 bg-white/20 backdrop-blur-sm shadow-inner"
+        >
+          <Icon 
+            className="w-7 h-7 text-white drop-shadow-sm" 
+            strokeWidth={1.8}
+          />
+        </div>
+        <h3 className="text-sm font-bold text-white tracking-wide">
+          {category.name}
+        </h3>
+        <p className="text-[11px] text-white/80 mt-1 font-medium">
+          {category.description}
+        </p>
       </div>
-      <h3 className="text-sm font-semibold text-white">
-        {category.name}
-      </h3>
-      <p className="text-[11px] text-white/70 mt-0.5 line-clamp-1">
-        {category.description}
-      </p>
     </Link>
   );
 }

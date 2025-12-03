@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, Check, User, Calendar, Clock, Sparkles, ChevronRight } from "lucide-react";
+import { ArrowLeft, Check, User, Calendar, Clock, Sparkles, ChevronRight, Users } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -24,29 +24,29 @@ interface StepIndicatorProps {
 
 function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between">
       {Array.from({ length: totalSteps }).map((_, index) => (
         <div key={index} className="flex items-center flex-1">
           <div className="flex flex-col items-center">
             <div 
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
+              className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-all shadow-sm ${
                 index < currentStep 
-                  ? "bg-primary text-primary-foreground" 
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground" 
                   : index === currentStep 
-                    ? "bg-primary text-primary-foreground ring-4 ring-primary/20" 
+                    ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground ring-4 ring-primary/20 scale-105" 
                     : "bg-muted text-muted-foreground"
               }`}
             >
-              {index < currentStep ? <Check className="w-4 h-4" /> : index + 1}
+              {index < currentStep ? <Check className="w-4 h-4" strokeWidth={3} /> : index + 1}
             </div>
-            <span className={`text-[10px] mt-1 font-medium ${
+            <span className={`text-[10px] mt-1.5 font-semibold tracking-wide ${
               index <= currentStep ? "text-foreground" : "text-muted-foreground"
             }`}>
               {labels[index]}
             </span>
           </div>
           {index < totalSteps - 1 && (
-            <div className={`flex-1 h-0.5 mx-2 ${
+            <div className={`flex-1 h-1 mx-2 rounded-full transition-colors ${
               index < currentStep ? "bg-primary" : "bg-muted"
             }`} />
           )}
@@ -283,13 +283,13 @@ export default function BookingPage() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-5 pt-5 pb-4 border-b border-border bg-background">
-        <div className="flex items-center gap-3 mb-4">
+      <header className="px-5 pt-5 pb-5 border-b border-border bg-background">
+        <div className="flex items-center gap-4 mb-5">
           <Link href={`/business/${id}`}>
             <Button
               variant="ghost"
               size="icon"
-              className="w-10 h-10 rounded-xl"
+              className="w-11 h-11 rounded-xl bg-muted/50 hover:bg-muted"
               data-testid="button-back"
               aria-label="Nazad"
             >
@@ -297,7 +297,7 @@ export default function BookingPage() {
             </Button>
           </Link>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold text-foreground" data-testid="text-booking-title">
+            <h1 className="text-lg font-bold text-foreground" data-testid="text-booking-title">
               Zakažite termin
             </h1>
             <p className="text-xs text-muted-foreground">{business.name}</p>
@@ -312,43 +312,56 @@ export default function BookingPage() {
         />
       </header>
 
-      <main className="flex-1 overflow-y-auto px-5 py-5 pb-44 scroll-smooth">
+      <main className="flex-1 overflow-y-auto px-5 py-6 pb-48 scroll-smooth">
         {/* Services Selection */}
         {services && services.length > 0 && (
-          <section className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-primary" />
+          <section className="mb-7">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center shadow-sm">
+                <Sparkles className="w-5 h-5 text-violet-500" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">Odaberite uslugu</h3>
+              <div>
+                <h3 className="text-base font-bold text-foreground">Odaberite uslugu</h3>
+                <p className="text-xs text-muted-foreground">Izaberite željenu uslugu</p>
+              </div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {services.map((service) => (
                 <Card
                   key={service.id}
                   className={`p-4 cursor-pointer transition-all ${
                     selectedService === service.id
-                      ? "border-2 border-primary bg-primary/5"
-                      : "hover:border-primary/30"
+                      ? "border-2 border-primary bg-primary/5 shadow-md"
+                      : "hover:border-primary/30 hover:shadow-sm"
                   }`}
                   onClick={() => setSelectedService(service.id)}
                   data-testid={`service-${service.id}`}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold text-foreground">{service.name}</p>
-                        {selectedService === service.id && (
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <Check className="w-3 h-3 text-primary-foreground" />
-                          </div>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                        selectedService === service.id 
+                          ? "bg-primary text-primary-foreground" 
+                          : "bg-muted"
+                      }`}>
+                        <Sparkles className="w-5 h-5" />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {service.duration} minuta
-                      </p>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-semibold text-foreground">{service.name}</p>
+                          {selectedService === service.id && (
+                            <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <Clock className="w-3 h-3" />
+                          {service.duration} minuta
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-base font-bold text-primary">{service.price} KM</span>
+                    <span className="text-lg font-bold text-primary">{service.price} KM</span>
                   </div>
                 </Card>
               ))}
@@ -358,31 +371,34 @@ export default function BookingPage() {
 
         {/* Employee Selection */}
         {hasEmployees && (
-          <section className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <User className="w-4 h-4 text-blue-500" />
+          <section className="mb-7">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 flex items-center justify-center shadow-sm">
+                <Users className="w-5 h-5 text-blue-500" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">Odaberite zaposlenog</h3>
+              <div>
+                <h3 className="text-base font-bold text-foreground">Odaberite osobu</h3>
+                <p className="text-xs text-muted-foreground">Ko će vas uslužiti?</p>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Card
                 className={`p-4 cursor-pointer transition-all ${
                   selectedEmployee === null
-                    ? "border-2 border-primary bg-primary/5"
-                    : "hover:border-primary/30"
+                    ? "border-2 border-primary bg-primary/5 shadow-md"
+                    : "hover:border-primary/30 hover:shadow-sm"
                 }`}
                 onClick={() => setSelectedEmployee(null)}
                 data-testid="employee-any"
               >
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                <div className="flex flex-col items-center gap-3 text-center">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-colors ${
                     selectedEmployee === null ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}>
-                    <User className="w-5 h-5" />
+                    <User className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold">Bilo ko</p>
+                    <p className="text-sm font-bold">Bilo ko</p>
                     <p className="text-xs text-muted-foreground">Prvi slobodan</p>
                   </div>
                 </div>
@@ -393,23 +409,23 @@ export default function BookingPage() {
                   key={employee.id}
                   className={`p-4 cursor-pointer transition-all ${
                     selectedEmployee === employee.id
-                      ? "border-2 border-primary bg-primary/5"
-                      : "hover:border-primary/30"
+                      ? "border-2 border-primary bg-primary/5 shadow-md"
+                      : "hover:border-primary/30 hover:shadow-sm"
                   }`}
                   onClick={() => setSelectedEmployee(employee.id)}
                   data-testid={`employee-${employee.id}`}
                 >
-                  <div className="flex flex-col items-center gap-2 text-center">
-                    <Avatar className={`w-12 h-12 ${selectedEmployee === employee.id ? "ring-2 ring-primary" : ""}`}>
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <Avatar className={`w-14 h-14 ${selectedEmployee === employee.id ? "ring-3 ring-primary shadow-lg" : ""}`}>
                       {employee.imageUrl && (
                         <AvatarImage src={employee.imageUrl} alt={employee.name} />
                       )}
-                      <AvatarFallback className="text-sm font-semibold">
+                      <AvatarFallback className="text-base font-bold bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
                         {employee.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-semibold truncate max-w-full">{employee.name}</p>
+                      <p className="text-sm font-bold truncate max-w-full">{employee.name}</p>
                       {employee.title && (
                         <p className="text-xs text-muted-foreground truncate max-w-full">
                           {employee.title}
@@ -424,14 +440,17 @@ export default function BookingPage() {
         )}
 
         {/* Date Selection */}
-        <section className="mb-6">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-green-500" />
+        <section className="mb-7">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 flex items-center justify-center shadow-sm">
+              <Calendar className="w-5 h-5 text-emerald-500" />
             </div>
-            <h3 className="text-base font-semibold text-foreground">Odaberite datum</h3>
+            <div>
+              <h3 className="text-base font-bold text-foreground">Odaberite datum</h3>
+              <p className="text-xs text-muted-foreground">Kada vam odgovara?</p>
+            </div>
           </div>
-          <Card className="p-4">
+          <Card className="p-4 shadow-sm">
             <BookingCalendar
               selectedDate={selectedDate}
               onDateSelect={setSelectedDate}
@@ -443,15 +462,20 @@ export default function BookingPage() {
         {/* Time Selection */}
         {selectedDate && (
           <section className="mb-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                <Clock className="w-4 h-4 text-orange-500" />
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center shadow-sm">
+                <Clock className="w-5 h-5 text-amber-500" />
               </div>
-              <h3 className="text-base font-semibold text-foreground">Odaberite vrijeme</h3>
+              <div>
+                <h3 className="text-base font-bold text-foreground">Odaberite vrijeme</h3>
+                <p className="text-xs text-muted-foreground">Slobodni termini</p>
+              </div>
             </div>
             {isClosed || isHoliday ? (
-              <Card className="p-6 text-center">
-                <Clock className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <Card className="p-8 text-center shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                  <Clock className="w-7 h-7 text-muted-foreground/40" />
+                </div>
                 <p className="text-sm font-medium text-muted-foreground">
                   {isHoliday 
                     ? `Zatvoreno - ${holidayInfo?.label || "Praznik"}`
@@ -476,35 +500,46 @@ export default function BookingPage() {
       {/* Booking Summary & Confirm */}
       <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-background/95 backdrop-blur-md border-t border-border safe-area-bottom">
         {canBook && (
-          <Card className="p-3 mb-3 bg-muted/50">
-            <div className="flex items-center justify-between text-sm">
+          <Card className="p-4 mb-3 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 shadow-sm">
+            <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold text-foreground">
+                <p className="text-sm font-bold text-foreground">
                   {selectedDate?.toLocaleDateString("sr-Latn", { 
                     weekday: 'short', 
                     day: 'numeric', 
                     month: 'long' 
-                  })} u {selectedTime}
+                  })}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {getServiceInfo()?.name}
+                <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {selectedTime}
+                  {getServiceInfo() && ` • ${getServiceInfo()?.name}`}
                   {getEmployeeName() && ` • ${getEmployeeName()}`}
                 </p>
               </div>
               {getServiceInfo() && (
-                <span className="text-lg font-bold text-primary">{getServiceInfo()?.price} KM</span>
+                <span className="text-xl font-bold text-primary">{getServiceInfo()?.price} KM</span>
               )}
             </div>
           </Card>
         )}
         <Button
-          className="w-full h-12 text-base font-semibold rounded-xl shadow-lg"
+          className="w-full h-14 text-base font-bold rounded-2xl shadow-lg bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary disabled:from-muted disabled:to-muted"
           disabled={!canBook || createBookingMutation.isPending}
           onClick={() => createBookingMutation.mutate()}
           data-testid="button-confirm-booking"
         >
-          {createBookingMutation.isPending ? "Zakazivanje..." : "Potvrdi rezervaciju"}
-          <ChevronRight className="w-5 h-5 ml-1" />
+          {createBookingMutation.isPending ? (
+            <>
+              <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+              Zakazivanje...
+            </>
+          ) : (
+            <>
+              Potvrdi rezervaciju
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </>
+          )}
         </Button>
       </footer>
     </MobileContainer>

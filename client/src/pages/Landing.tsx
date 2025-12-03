@@ -57,7 +57,7 @@ export default function Landing() {
           </a>
           
           <p className="text-xs text-muted-foreground mt-3">
-            Besplatna registracija · Google, GitHub ili email
+            Besplatna registracija · Google ili email
           </p>
         </div>
 

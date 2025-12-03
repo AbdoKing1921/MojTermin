@@ -143,7 +143,18 @@ Preferred communication style: Simple, everyday language.
 - Profile page links to admin panel for easy access
 - Ownership verification enforced on all admin API routes
 
+**SMS Notifications**
+- SMS service implemented in `server/sms.ts` using Twilio API
+- Sends booking confirmation SMS to customers
+- Notifies business owners of new bookings via SMS
+- Sends status update SMS when bookings are confirmed/cancelled
+- **Configuration**: Set these secrets to enable SMS:
+  - `TWILIO_ACCOUNT_SID` - Your Twilio Account SID
+  - `TWILIO_AUTH_TOKEN` - Your Twilio Auth Token
+  - `TWILIO_PHONE_NUMBER` - Your Twilio phone number (e.g., +12025551234)
+- Logs SMS content to console when Twilio is not configured
+- Automatically formats phone numbers for Bosnia (+387)
+
 **Planned/Optional Integrations**
-- SMS notifications via Twilio (TODO)
 - Payment processing via Stripe (TODO)
 - Real-time features via WebSocket (ws package)

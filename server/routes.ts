@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertBookingSchema, insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { sendBookingConfirmation, sendBookingStatusUpdate, sendOwnerNotification } from "./email";
+import { sendBookingConfirmationSms, sendBookingStatusSms, sendOwnerNewBookingSms } from "./sms";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -201,9 +202,22 @@ export async function registerRoutes(
               bookingId: booking.id,
             };
             
-            // Send confirmation to customer
+            // Send confirmation to customer (email)
             if (user.email) {
               await sendBookingConfirmation(emailData);
+            }
+            
+            // Send confirmation to customer (SMS)
+            if (user.phone) {
+              await sendBookingConfirmationSms({
+                customerPhone: user.phone,
+                customerName: emailData.customerName,
+                businessName: emailData.businessName,
+                serviceName: emailData.serviceName,
+                date: emailData.date,
+                time: emailData.time,
+                bookingId: emailData.bookingId,
+              });
             }
             
             // Notify business owner
@@ -211,6 +225,17 @@ export async function registerRoutes(
               const owner = await storage.getUser(business.ownerId);
               if (owner?.email) {
                 await sendOwnerNotification(owner.email, emailData);
+              }
+              if (owner?.phone) {
+                await sendOwnerNewBookingSms(owner.phone, {
+                  customerPhone: user.phone || "",
+                  customerName: emailData.customerName,
+                  businessName: emailData.businessName,
+                  serviceName: emailData.serviceName,
+                  date: emailData.date,
+                  time: emailData.time,
+                  bookingId: emailData.bookingId,
+                });
               }
             }
           }
@@ -344,19 +369,29 @@ export async function registerRoutes(
             const customer = await storage.getUser(booking.userId);
             const service = booking.serviceId ? await storage.getServiceById(booking.serviceId) : null;
             
+            const smsData = {
+              customerPhone: customer?.phone || "",
+              customerName: customer?.firstName || customer?.email || "Korisnik",
+              businessName: business.name,
+              serviceName: service?.name || "Usluga",
+              date: new Date(booking.date).toLocaleDateString("sr-Latn"),
+              time: booking.time,
+              bookingId: booking.id,
+            };
+            
+            // Send email notification
             if (customer?.email) {
               const emailData = {
-                customerName: customer.firstName || customer.email || "Korisnik",
+                ...smsData,
                 customerEmail: customer.email,
-                businessName: business.name,
-                serviceName: service?.name || "Usluga",
-                date: new Date(booking.date).toLocaleDateString("sr-Latn"),
-                time: booking.time,
                 price: service?.price || "0",
-                bookingId: booking.id,
               };
-              
               await sendBookingStatusUpdate(emailData, status as "confirmed" | "cancelled");
+            }
+            
+            // Send SMS notification
+            if (customer?.phone) {
+              await sendBookingStatusSms(smsData, status as "confirmed" | "cancelled");
             }
           } catch (emailError) {
             console.error("[EMAIL] Error sending status update notification:", emailError);

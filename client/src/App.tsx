@@ -21,6 +21,8 @@ import AdminUsers from "@/pages/AdminUsers";
 import AdminBusinessApproval from "@/pages/AdminBusinessApproval";
 import EmployeeManagement from "@/pages/EmployeeManagement";
 import BusinessSchedule from "@/pages/BusinessSchedule";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 import NotFound from "@/pages/not-found";
 
 function AuthenticatedRoutes() {
@@ -40,6 +42,8 @@ function AuthenticatedRoutes() {
       <Route path="/admin/businesses" component={AdminBusinessApproval} />
       <Route path="/admin/business/:businessId/employees" component={EmployeeManagement} />
       <Route path="/admin/business/:businessId/schedule" component={BusinessSchedule} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -52,6 +56,8 @@ function PublicRoutes() {
       <Route path="/search" component={SearchPage} />
       <Route path="/category/:slug" component={CategoryPage} />
       <Route path="/business/:id" component={BusinessDetail} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />
     </Switch>
   );

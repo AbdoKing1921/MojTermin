@@ -31,6 +31,14 @@ const statusLabels: Record<string, string> = {
   cancelled: "Otkazano",
 };
 
+function getStatusColor(status: string | null): string {
+  return status ? (statusColors[status] || statusColors.pending) : statusColors.pending;
+}
+
+function getStatusLabel(status: string | null): string {
+  return status ? (statusLabels[status] || statusLabels.pending) : statusLabels.pending;
+}
+
 export default function UserBookings() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -125,10 +133,11 @@ export default function UserBookings() {
                   Nadolazeće
                 </h2>
                 <div className="space-y-3">
-                  {upcomingBookings.map((booking) => (
+                  {upcomingBookings.map((booking, index) => (
                     <div
                       key={booking.id}
-                      className="p-4 bg-card rounded-xl border border-border"
+                      className="p-4 bg-card rounded-xl border border-border stagger-item card-press"
+                      style={{ animationDelay: `${index * 50}ms` }}
                       data-testid={`booking-card-${booking.id}`}
                     >
                       <div className="flex items-start justify-between mb-3">
@@ -138,9 +147,9 @@ export default function UserBookings() {
                           </h3>
                           <Badge 
                             variant="outline" 
-                            className={`mt-1 text-[10px] font-medium border ${statusColors[booking.status]}`}
+                            className={`mt-1 text-[10px] font-medium border ${getStatusColor(booking.status)}`}
                           >
-                            {statusLabels[booking.status]}
+                            {getStatusLabel(booking.status)}
                           </Badge>
                         </div>
                         {(booking.status === "pending" || booking.status === "confirmed") && (
@@ -193,10 +202,11 @@ export default function UserBookings() {
                   Prošle
                 </h2>
                 <div className="space-y-3">
-                  {pastBookings.map((booking) => (
+                  {pastBookings.map((booking, index) => (
                     <div
                       key={booking.id}
-                      className="p-4 bg-card rounded-xl border border-border opacity-60"
+                      className="p-4 bg-card rounded-xl border border-border opacity-60 stagger-item"
+                      style={{ animationDelay: `${index * 50}ms` }}
                       data-testid={`booking-card-${booking.id}`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -206,9 +216,9 @@ export default function UserBookings() {
                           </h3>
                           <Badge 
                             variant="outline" 
-                            className={`mt-1 text-[10px] font-medium border ${statusColors[booking.status]}`}
+                            className={`mt-1 text-[10px] font-medium border ${getStatusColor(booking.status)}`}
                           >
-                            {statusLabels[booking.status]}
+                            {getStatusLabel(booking.status)}
                           </Badge>
                         </div>
                       </div>

@@ -5,7 +5,7 @@ import { ProfileHeader } from "@/components/ProfileHeader";
 import { SearchInput } from "@/components/SearchInput";
 import { CategoryCard, defaultCategories } from "@/components/CategoryCard";
 import { BusinessCard } from "@/components/BusinessCard";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { CategorySkeleton, CardSkeleton } from "@/components/LoadingSpinner";
 import type { Category, Business } from "@shared/schema";
 
 export default function Home() {
@@ -52,12 +52,17 @@ export default function Home() {
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
             {categoriesLoading ? (
-              <div className="flex items-center justify-center w-full py-6">
-                <LoadingSpinner />
-              </div>
+              <>
+                <CategorySkeleton />
+                <CategorySkeleton />
+                <CategorySkeleton />
+                <CategorySkeleton />
+              </>
             ) : (
-              displayCategories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
+              displayCategories.map((category, index) => (
+                <div key={category.id} className="stagger-item">
+                  <CategoryCard category={category} />
+                </div>
               ))
             )}
           </div>
@@ -70,19 +75,22 @@ export default function Home() {
           </h2>
           <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
             {businessesLoading ? (
-              <div className="flex items-center justify-center w-full py-6">
-                <LoadingSpinner />
-              </div>
+              <>
+                <CardSkeleton />
+                <CardSkeleton />
+                <CardSkeleton />
+              </>
             ) : popularBusinesses?.length ? (
               popularBusinesses.map((business, index) => (
-                <BusinessCard 
-                  key={business.id} 
-                  business={business} 
-                  index={index}
-                />
+                <div key={business.id} className="stagger-item">
+                  <BusinessCard 
+                    business={business} 
+                    index={index}
+                  />
+                </div>
               ))
             ) : (
-              <div className="flex items-center justify-center w-full py-6">
+              <div className="flex items-center justify-center w-full py-6 animate-fade-in">
                 <p className="text-sm text-muted-foreground">
                   Nema dostupnih biznisa
                 </p>

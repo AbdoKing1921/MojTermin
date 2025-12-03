@@ -17,7 +17,12 @@ export default function Home() {
     queryKey: ["/api/businesses/popular"],
   });
 
-  const displayCategories = categories?.length ? categories : defaultCategories;
+  const rawCategories = categories?.length ? categories : defaultCategories;
+  const displayCategories = [...rawCategories].sort((a, b) => {
+    if (a.slug === "barber") return -1;
+    if (b.slug === "barber") return 1;
+    return 0;
+  });
 
   return (
     <MobileContainer>

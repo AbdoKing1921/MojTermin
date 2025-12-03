@@ -3,6 +3,17 @@ import { categories, businesses, services } from "@shared/schema";
 
 const defaultCategories = [
   {
+    name: "Berber",
+    nameEn: "Barber",
+    slug: "barber",
+    description: "Profesionalno šišanje",
+    icon: "scissors",
+    gradient: "gradient-barber",
+    iconColor: "#F9FAFB",
+    textColor: "#F9FAFB",
+    subtextColor: "#E5E7EB",
+  },
+  {
     name: "Kafići",
     nameEn: "Cafes",
     slug: "cafes",
@@ -23,17 +34,6 @@ const defaultCategories = [
     iconColor: "#7C3AED",
     textColor: "#5B21B6",
     subtextColor: "#6D28D9",
-  },
-  {
-    name: "Berber",
-    nameEn: "Barber",
-    slug: "barber",
-    description: "Profesionalno šišanje",
-    icon: "scissors",
-    gradient: "gradient-barber",
-    iconColor: "#F9FAFB",
-    textColor: "#F9FAFB",
-    subtextColor: "#E5E7EB",
   },
   {
     name: "Wellness",

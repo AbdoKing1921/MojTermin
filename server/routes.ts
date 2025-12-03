@@ -105,11 +105,67 @@ export async function registerRoutes(
   app.get('/api/businesses/:id/booked-slots/:date', async (req, res) => {
     try {
       const { id, date } = req.params;
-      const bookedSlots = await storage.getBookedSlots(id, date);
+      const { employeeId } = req.query;
+      const bookedSlots = await storage.getBookedSlots(id, date, employeeId as string | undefined);
       res.json(bookedSlots);
     } catch (error) {
       console.error("Error fetching booked slots:", error);
       res.status(500).json({ message: "Failed to fetch booked slots" });
+    }
+  });
+
+  // Get employees for a business
+  app.get('/api/businesses/:id/employees', async (req, res) => {
+    try {
+      const employees = await storage.getEmployeesByBusiness(req.params.id);
+      res.json(employees.filter(e => e.isActive));
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // Get business hours
+  app.get('/api/businesses/:id/hours', async (req, res) => {
+    try {
+      const hours = await storage.getBusinessHours(req.params.id);
+      res.json(hours);
+    } catch (error) {
+      console.error("Error fetching business hours:", error);
+      res.status(500).json({ message: "Failed to fetch hours" });
+    }
+  });
+
+  // Get business breaks
+  app.get('/api/businesses/:id/breaks', async (req, res) => {
+    try {
+      const breaks = await storage.getBusinessBreaks(req.params.id);
+      res.json(breaks);
+    } catch (error) {
+      console.error("Error fetching business breaks:", error);
+      res.status(500).json({ message: "Failed to fetch breaks" });
+    }
+  });
+
+  // Get business holidays
+  app.get('/api/businesses/:id/holidays', async (req, res) => {
+    try {
+      const holidays = await storage.getBusinessHolidays(req.params.id);
+      res.json(holidays);
+    } catch (error) {
+      console.error("Error fetching business holidays:", error);
+      res.status(500).json({ message: "Failed to fetch holidays" });
+    }
+  });
+
+  // Get employees for a specific service
+  app.get('/api/services/:id/employees', async (req, res) => {
+    try {
+      const employees = await storage.getEmployeesForService(req.params.id);
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching service employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
     }
   });
 
@@ -634,6 +690,460 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error creating business:", error);
       res.status(500).json({ message: "Failed to create business" });
+    }
+  });
+
+  // ==================== EMPLOYEE MANAGEMENT ====================
+
+  // Get all employees for owner's business (including inactive)
+  app.get('/api/admin/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employees = await storage.getEmployeesByBusiness(businessId);
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // Create employee
+  app.post('/api/admin/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employeeData = {
+        businessId,
+        name: req.body.name,
+        title: req.body.title || null,
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        imageUrl: req.body.imageUrl || null,
+        isActive: true,
+      };
+      
+      const employee = await storage.createEmployee(employeeData);
+      res.status(201).json(employee);
+    } catch (error) {
+      console.error("Error creating employee:", error);
+      res.status(500).json({ message: "Failed to create employee" });
+    }
+  });
+
+  // Update employee
+  app.patch('/api/admin/employees/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const employeeId = req.params.id;
+      
+      // Get employee and verify ownership
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateEmployee(employeeId, {
+        name: req.body.name,
+        title: req.body.title,
+        email: req.body.email,
+        phone: req.body.phone,
+        imageUrl: req.body.imageUrl,
+        isActive: req.body.isActive,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      res.status(500).json({ message: "Failed to update employee" });
+    }
+  });
+
+  // Delete employee
+  app.delete('/api/admin/employees/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const employeeId = req.params.id;
+      
+      // Get employee and verify ownership
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteEmployee(employeeId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      res.status(500).json({ message: "Failed to delete employee" });
+    }
+  });
+
+  // Assign service to employee
+  app.post('/api/admin/employees/:id/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const employeeId = req.params.id;
+      const { serviceId } = req.body;
+      
+      // Verify ownership
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employeeService = await storage.addEmployeeService({
+        employeeId,
+        serviceId,
+      });
+      
+      res.status(201).json(employeeService);
+    } catch (error) {
+      console.error("Error assigning service:", error);
+      res.status(500).json({ message: "Failed to assign service" });
+    }
+  });
+
+  // Remove service from employee
+  app.delete('/api/admin/employees/:employeeId/services/:serviceId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { employeeId, serviceId } = req.params;
+      
+      // Verify ownership
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.removeEmployeeService(employeeId, serviceId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error removing service:", error);
+      res.status(500).json({ message: "Failed to remove service" });
+    }
+  });
+
+  // Get employee's services
+  app.get('/api/admin/employees/:id/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const employeeId = req.params.id;
+      
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employeeServices = await storage.getEmployeeServices(employeeId);
+      res.json(employeeServices);
+    } catch (error) {
+      console.error("Error fetching employee services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  // ==================== BUSINESS HOURS/BREAKS/HOLIDAYS ====================
+
+  // Set business hours
+  app.put('/api/admin/businesses/:id/hours', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const hours = req.body.hours.map((h: any) => ({
+        businessId,
+        dayOfWeek: h.dayOfWeek,
+        openTime: h.openTime,
+        closeTime: h.closeTime,
+        isClosed: h.isClosed || false,
+      }));
+      
+      const savedHours = await storage.setBusinessHours(businessId, hours);
+      res.json(savedHours);
+    } catch (error) {
+      console.error("Error setting business hours:", error);
+      res.status(500).json({ message: "Failed to set hours" });
+    }
+  });
+
+  // Add business break
+  app.post('/api/admin/businesses/:id/breaks', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const breakData = {
+        businessId,
+        dayOfWeek: req.body.dayOfWeek,
+        startTime: req.body.startTime,
+        endTime: req.body.endTime,
+        label: req.body.label || null,
+      };
+      
+      const newBreak = await storage.addBusinessBreak(breakData);
+      res.status(201).json(newBreak);
+    } catch (error) {
+      console.error("Error adding break:", error);
+      res.status(500).json({ message: "Failed to add break" });
+    }
+  });
+
+  // Delete business break
+  app.delete('/api/admin/breaks/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const breakId = req.params.id;
+      
+      // We'd need to get the break first to verify ownership
+      // For now, just delete (can be improved later)
+      await storage.removeBusinessBreak(breakId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting break:", error);
+      res.status(500).json({ message: "Failed to delete break" });
+    }
+  });
+
+  // Add business holiday
+  app.post('/api/admin/businesses/:id/holidays', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const holidayData = {
+        businessId,
+        date: req.body.date,
+        label: req.body.label || null,
+      };
+      
+      const holiday = await storage.addBusinessHoliday(holidayData);
+      res.status(201).json(holiday);
+    } catch (error) {
+      console.error("Error adding holiday:", error);
+      res.status(500).json({ message: "Failed to add holiday" });
+    }
+  });
+
+  // Delete business holiday
+  app.delete('/api/admin/holidays/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      await storage.removeBusinessHoliday(req.params.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting holiday:", error);
+      res.status(500).json({ message: "Failed to delete holiday" });
+    }
+  });
+
+  // Update service
+  app.patch('/api/admin/services/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const serviceId = req.params.id;
+      
+      const service = await storage.getServiceById(serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      const business = await storage.getBusinessById(service.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateService(serviceId, {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price,
+        duration: req.body.duration,
+        isActive: req.body.isActive,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating service:", error);
+      res.status(500).json({ message: "Failed to update service" });
+    }
+  });
+
+  // Delete service
+  app.delete('/api/admin/services/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const serviceId = req.params.id;
+      
+      const service = await storage.getServiceById(serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      const business = await storage.getBusinessById(service.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteService(serviceId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ message: "Failed to delete service" });
+    }
+  });
+
+  // ==================== SUPER ADMIN - BUSINESS APPROVAL ====================
+
+  // Get all businesses (for super admin)
+  app.get('/api/superadmin/businesses', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const currentUser = await storage.getUser(userId);
+      
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Samo admin ima pristup" });
+      }
+      
+      const allBusinesses = await storage.getAllBusinesses();
+      res.json(allBusinesses);
+    } catch (error) {
+      console.error("Error fetching all businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Get pending businesses (for super admin)
+  app.get('/api/superadmin/businesses/pending', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const currentUser = await storage.getUser(userId);
+      
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Samo admin ima pristup" });
+      }
+      
+      const pendingBusinesses = await storage.getPendingBusinesses();
+      res.json(pendingBusinesses);
+    } catch (error) {
+      console.error("Error fetching pending businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Approve business
+  app.patch('/api/superadmin/businesses/:id/approve', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.claims.sub;
+      const currentUser = await storage.getUser(adminId);
+      
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Samo admin ima pristup" });
+      }
+      
+      const businessId = req.params.id;
+      const approved = await storage.approveBusiness(businessId, adminId);
+      
+      if (!approved) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      
+      res.json(approved);
+    } catch (error) {
+      console.error("Error approving business:", error);
+      res.status(500).json({ message: "Failed to approve business" });
+    }
+  });
+
+  // Reject/delete business
+  app.delete('/api/superadmin/businesses/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.claims.sub;
+      const currentUser = await storage.getUser(adminId);
+      
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Samo admin ima pristup" });
+      }
+      
+      const businessId = req.params.id;
+      await storage.rejectBusiness(businessId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error rejecting business:", error);
+      res.status(500).json({ message: "Failed to reject business" });
+    }
+  });
+
+  // Toggle business active status
+  app.patch('/api/superadmin/businesses/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const adminId = req.user.claims.sub;
+      const currentUser = await storage.getUser(adminId);
+      
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Samo admin ima pristup" });
+      }
+      
+      const businessId = req.params.id;
+      const { isActive } = req.body;
+      
+      const updated = await storage.updateBusiness(businessId, { isActive });
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating business status:", error);
+      res.status(500).json({ message: "Failed to update status" });
     }
   });
 

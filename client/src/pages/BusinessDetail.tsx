@@ -243,17 +243,14 @@ export default function BusinessDetail() {
                     {service.name}
                   </h3>
                   {service.description && (
-                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                    <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                       {service.description}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center mt-auto">
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {service.duration} min
-                    </span>
-                    <span className="text-base font-bold text-primary">
-                      {service.price} KM
                     </span>
                   </div>
                 </Card>

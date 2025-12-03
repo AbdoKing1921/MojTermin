@@ -89,42 +89,42 @@ export default function Landing() {
 
           {/* Category Cards */}
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mt-16 max-w-4xl mx-auto">
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            <a href="/category/barber" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-frizeri">
               <div className="w-14 h-14 rounded-xl gradient-barber flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Scissors className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Frizeri</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            </a>
+            <a href="/category/beauty" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-kozmetika">
               <div className="w-14 h-14 rounded-xl gradient-beauty flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Kozmetika</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            </a>
+            <a href="/category/wellness" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-wellness">
               <div className="w-14 h-14 rounded-xl gradient-wellness flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Heart className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Wellness</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            </a>
+            <a href="/category/cafes" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-kafici">
               <div className="w-14 h-14 rounded-xl gradient-cafe flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Coffee className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Kafići</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            </a>
+            <a href="/category/sports" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-fitness">
               <div className="w-14 h-14 rounded-xl gradient-sports flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Dumbbell className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Fitness</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group">
+            </a>
+            <a href="/category/services" className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:shadow-lg transition-all cursor-pointer group" data-testid="category-auto">
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
                 <Car className="w-7 h-7 text-white" />
               </div>
               <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">Auto</span>
-            </div>
+            </a>
           </div>
         </div>
       </section>

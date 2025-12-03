@@ -361,7 +361,6 @@ export default function BookingPage() {
                         </p>
                       </div>
                     </div>
-                    <span className="text-lg font-bold text-primary">{service.price} KM</span>
                   </div>
                 </Card>
               ))}
@@ -517,9 +516,6 @@ export default function BookingPage() {
                   {getEmployeeName() && ` • ${getEmployeeName()}`}
                 </p>
               </div>
-              {getServiceInfo() && (
-                <span className="text-xl font-bold text-primary">{getServiceInfo()?.price} KM</span>
-              )}
             </div>
           </Card>
         )}

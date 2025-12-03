@@ -18,7 +18,7 @@ export default function CategoryPage() {
   });
 
   const { data: businesses, isLoading: businessesLoading } = useQuery<Business[]>({
-    queryKey: ["/api/businesses", { categorySlug: slug }],
+    queryKey: [`/api/businesses?categorySlug=${slug}`],
   });
 
   const displayCategory = category || defaultCategories.find(c => c.slug === slug);

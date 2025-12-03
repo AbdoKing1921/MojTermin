@@ -418,6 +418,28 @@ export async function registerRoutes(
     }
   });
 
+  // Get analytics data
+  app.get('/api/admin/analytics', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { startDate, endDate } = req.query;
+      
+      // Default to last 30 days if not specified
+      const end = endDate ? String(endDate) : new Date().toISOString().split("T")[0];
+      const start = startDate ? String(startDate) : (() => {
+        const d = new Date();
+        d.setDate(d.getDate() - 30);
+        return d.toISOString().split("T")[0];
+      })();
+      
+      const analytics = await storage.getOwnerAnalytics(userId, start, end);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
   // Create or update service
   app.post('/api/admin/businesses/:id/services', isAuthenticated, async (req: any, res) => {
     try {

@@ -67,6 +67,16 @@ export interface IStorage {
     revenue: number;
   }>;
   
+  // Analytics
+  getOwnerAnalytics(ownerId: string, startDate: string, endDate: string): Promise<{
+    bookingsByDate: { date: string; count: number; revenue: number }[];
+    bookingsByStatus: { status: string; count: number }[];
+    bookingsByService: { serviceName: string; count: number; revenue: number }[];
+    totalRevenue: number;
+    averageBookingValue: number;
+    completionRate: number;
+  }>;
+  
   // Review operations
   getReviewsByBusiness(businessId: string): Promise<(Review & { user?: User })[]>;
   createReview(review: InsertReview): Promise<Review>;
@@ -327,6 +337,112 @@ export class DatabaseStorage implements IStorage {
       todayBookings: todayBookings.length,
       pendingBookings: pendingBookings.length,
       revenue,
+    };
+  }
+
+  async getOwnerAnalytics(ownerId: string, startDate: string, endDate: string): Promise<{
+    bookingsByDate: { date: string; count: number; revenue: number }[];
+    bookingsByStatus: { status: string; count: number }[];
+    bookingsByService: { serviceName: string; count: number; revenue: number }[];
+    totalRevenue: number;
+    averageBookingValue: number;
+    completionRate: number;
+  }> {
+    // Get all owner's businesses
+    const ownerBusinesses = await this.getBusinessesByOwner(ownerId);
+    const businessIds = ownerBusinesses.map(b => b.id);
+    
+    if (businessIds.length === 0) {
+      return {
+        bookingsByDate: [],
+        bookingsByStatus: [],
+        bookingsByService: [],
+        totalRevenue: 0,
+        averageBookingValue: 0,
+        completionRate: 0,
+      };
+    }
+    
+    // Get all bookings for owner's businesses - filter only by business ownership in query
+    const allBookingsRaw = await db
+      .select({
+        booking: bookings,
+        service: services,
+      })
+      .from(bookings)
+      .leftJoin(services, eq(bookings.serviceId, services.id))
+      .where(
+        or(...businessIds.map(id => eq(bookings.businessId, id)))
+      );
+    
+    // Filter by date range using proper Date comparison (handles edge cases like month boundaries)
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    const allBookings = allBookingsRaw.filter(({ booking }) => {
+      const bookingDate = new Date(booking.date);
+      return bookingDate >= startDateObj && bookingDate <= endDateObj;
+    });
+    
+    // Bookings by date
+    const dateMap = new Map<string, { count: number; revenue: number }>();
+    allBookings.forEach(({ booking }) => {
+      const date = booking.date;
+      const current = dateMap.get(date) || { count: 0, revenue: 0 };
+      current.count++;
+      if (booking.status === "completed" || booking.status === "confirmed") {
+        current.revenue += parseFloat(booking.totalPrice || "0") || 0;
+      }
+      dateMap.set(date, current);
+    });
+    const bookingsByDate = Array.from(dateMap.entries())
+      .map(([date, data]) => ({ date, ...data }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    
+    // Bookings by status
+    const statusMap = new Map<string, number>();
+    allBookings.forEach(({ booking }) => {
+      const status = booking.status || "pending";
+      statusMap.set(status, (statusMap.get(status) || 0) + 1);
+    });
+    const bookingsByStatus = Array.from(statusMap.entries())
+      .map(([status, count]) => ({ status, count }));
+    
+    // Bookings by service
+    const serviceMap = new Map<string, { count: number; revenue: number }>();
+    allBookings.forEach(({ booking, service }) => {
+      const serviceName = service?.name || "Bez usluge";
+      const current = serviceMap.get(serviceName) || { count: 0, revenue: 0 };
+      current.count++;
+      if (booking.status === "completed" || booking.status === "confirmed") {
+        current.revenue += parseFloat(booking.totalPrice || "0") || 0;
+      }
+      serviceMap.set(serviceName, current);
+    });
+    const bookingsByService = Array.from(serviceMap.entries())
+      .map(([serviceName, data]) => ({ serviceName, ...data }))
+      .sort((a, b) => b.count - a.count);
+    
+    // Totals
+    const completedBookings = allBookings.filter(
+      ({ booking }) => booking.status === "completed" || booking.status === "confirmed"
+    );
+    const totalRevenue = completedBookings.reduce(
+      (sum, { booking }) => sum + (parseFloat(booking.totalPrice || "0") || 0), 0
+    );
+    const averageBookingValue = completedBookings.length > 0 
+      ? totalRevenue / completedBookings.length 
+      : 0;
+    const completionRate = allBookings.length > 0
+      ? (completedBookings.length / allBookings.length) * 100
+      : 0;
+    
+    return {
+      bookingsByDate,
+      bookingsByStatus,
+      bookingsByService,
+      totalRevenue,
+      averageBookingValue,
+      completionRate,
     };
   }
 

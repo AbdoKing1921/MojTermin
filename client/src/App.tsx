@@ -15,6 +15,7 @@ import Profile from "@/pages/Profile";
 import SearchPage from "@/pages/SearchPage";
 import AdminDashboard from "@/pages/AdminDashboard";
 import CreateBusiness from "@/pages/CreateBusiness";
+import Analytics from "@/pages/Analytics";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -40,6 +41,7 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/admin" component={AdminDashboard} />
           <Route path="/admin/create-business" component={CreateBusiness} />
+          <Route path="/admin/analytics" component={Analytics} />
         </>
       )}
       <Route component={NotFound} />

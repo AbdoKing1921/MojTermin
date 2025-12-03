@@ -155,6 +155,13 @@ Preferred communication style: Simple, everyday language.
 - Logs SMS content to console when Twilio is not configured
 - Automatically formats phone numbers for Bosnia (+387)
 
+**Analytics & Reporting**
+- Analytics page at `/admin/analytics` for business owners
+- Shows bookings by date, status, and service
+- Key metrics: total revenue, average booking value, completion rate
+- Date range filters: 7, 30, or 90 days
+- Accessible from Admin Dashboard
+
 **Planned/Optional Integrations**
 - Payment processing via Stripe (TODO - user can set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY secrets when ready)
 - Real-time features via WebSocket (ws package)

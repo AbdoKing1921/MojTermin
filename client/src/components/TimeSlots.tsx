@@ -47,7 +47,7 @@ export function TimeSlots({
   const isSlotBooked = (time: string) => bookedSlots.includes(time);
 
   return (
-    <div className="grid grid-cols-3 gap-3" data-testid="time-slots-grid">
+    <div className="grid grid-cols-4 gap-2" data-testid="time-slots-grid">
       {timeSlots.map((time) => {
         const isSelected = selectedTime === time;
         const isBooked = isSlotBooked(time);
@@ -59,12 +59,12 @@ export function TimeSlots({
             onClick={() => !isBooked && onTimeSelect(time)}
             disabled={isBooked}
             className={cn(
-              "time-slot py-3 px-4 rounded-xl text-sm font-medium transition-all",
+              "time-slot py-2.5 px-2 rounded-lg text-sm font-medium border",
               isSelected
-                ? "bg-primary text-primary-foreground"
+                ? "bg-primary text-primary-foreground border-primary"
                 : isBooked
-                  ? "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
-                  : "bg-card text-foreground hover:bg-secondary soft-shadow"
+                  ? "bg-muted text-muted-foreground opacity-40 cursor-not-allowed border-transparent"
+                  : "bg-card text-foreground hover:bg-secondary border-border"
             )}
             data-testid={`time-slot-${time.replace(":", "")}`}
             aria-label={`Odaberi vrijeme ${time}`}

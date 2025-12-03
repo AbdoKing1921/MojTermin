@@ -38,7 +38,7 @@ export default function BusinessDetail() {
   return (
     <MobileContainer>
       {/* Hero Image */}
-      <div className="relative h-48 business-gradient-1">
+      <div className="relative h-44 business-gradient-1">
         {business.imageUrl ? (
           <img 
             src={business.imageUrl} 
@@ -47,7 +47,11 @@ export default function BusinessDetail() {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-white/20" />
+            <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center">
+              <span className="text-white/40 text-xl font-semibold">
+                {business.name.charAt(0)}
+              </span>
+            </div>
           </div>
         )}
         
@@ -56,34 +60,34 @@ export default function BusinessDetail() {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-6 left-6 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm"
+            className="absolute top-4 left-4 w-9 h-9 rounded-lg bg-white/90 backdrop-blur-sm"
             data-testid="button-back"
             aria-label="Nazad"
           >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-4 h-4 text-foreground" />
           </Button>
         </Link>
 
         {/* Sponsored Badge */}
         {business.isSponsored && (
-          <div className="absolute top-6 right-6 bg-[#FBBF24] text-[#78350F] text-xs font-bold px-2.5 py-1 rounded-full">
-            Sponsored
+          <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded">
+            Sponzorisano
           </div>
         )}
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-6 pb-32 scroll-smooth -mt-4 bg-card rounded-t-3xl relative">
+      <main className="flex-1 overflow-y-auto px-5 py-5 pb-24 scroll-smooth">
         {/* Business Info */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2" data-testid="text-business-name">
+        <div className="mb-5">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground mb-2" data-testid="text-business-name">
             {business.name}
           </h1>
           
-          <div className="flex items-center gap-4 mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-[#FBBF24] text-[#FBBF24]" />
-              <span className="text-sm font-bold text-foreground">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span className="text-sm font-semibold text-foreground">
                 {business.rating || "0.0"}
               </span>
               <span className="text-xs text-muted-foreground">
@@ -93,32 +97,32 @@ export default function BusinessDetail() {
           </div>
 
           {business.description && (
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
               {business.description}
             </p>
           )}
 
           {/* Contact Info */}
-          <div className="space-y-2">
+          <div className="space-y-2 p-3 bg-secondary/50 rounded-lg">
             {business.address && (
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <MapPin className="w-4 h-4 flex-shrink-0" />
                 <span>{business.address}, {business.city}</span>
               </div>
             )}
             {business.phone && (
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <Phone className="w-4 h-4 flex-shrink-0" />
                 <span>{business.phone}</span>
               </div>
             )}
             {business.email && (
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <Mail className="w-4 h-4 flex-shrink-0" />
                 <span>{business.email}</span>
               </div>
             )}
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
               <Clock className="w-4 h-4 flex-shrink-0" />
               <span>
                 {business.openTime || "09:00"} - {business.closeTime || "18:00"}
@@ -129,28 +133,28 @@ export default function BusinessDetail() {
 
         {/* Services */}
         {services && services.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-bold text-foreground mb-4">Usluge</h2>
-            <div className="space-y-3">
+          <div className="mb-5">
+            <h2 className="text-sm font-semibold text-foreground mb-3">Usluge</h2>
+            <div className="space-y-2">
               {services.map((service) => (
                 <div 
                   key={service.id}
-                  className="p-4 bg-secondary rounded-xl flex items-center justify-between"
+                  className="p-3 bg-card rounded-lg border border-border flex items-center justify-between"
                 >
                   <div>
-                    <h3 className="text-sm font-bold text-foreground">
+                    <h3 className="text-sm font-medium text-foreground">
                       {service.name}
                     </h3>
                     {service.description && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {service.description}
                       </p>
                     )}
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {service.duration} min
                     </p>
                   </div>
-                  <span className="text-base font-bold text-primary">
+                  <span className="text-sm font-semibold text-primary">
                     {service.price} KM
                   </span>
                 </div>
@@ -161,10 +165,10 @@ export default function BusinessDetail() {
       </main>
 
       {/* Book Button */}
-      <footer className="absolute bottom-0 left-0 right-0 px-6 py-5 bg-card border-t border-border">
+      <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-card/95 backdrop-blur-sm border-t border-border">
         <Link href={`/book/${business.id}`}>
           <Button 
-            className="w-full py-6 text-base font-bold rounded-2xl"
+            className="w-full h-11 text-sm font-semibold rounded-lg"
             data-testid="button-book"
           >
             Zakažite termin

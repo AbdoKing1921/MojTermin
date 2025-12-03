@@ -21,36 +21,28 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <Link
       href={`/category/${category.slug}`}
-      className={`category-card focus-ring ${category.gradient} rounded-2xl p-5 text-left soft-shadow flex-shrink-0 w-44 block`}
+      className={`category-card focus-ring ${category.gradient} rounded-xl p-4 text-left soft-shadow flex-shrink-0 w-40 block`}
       data-testid={`category-card-${category.slug}`}
     >
       <div 
-        className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
-        style={{ backgroundColor: `${category.iconColor}15` }}
+        className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+        style={{ backgroundColor: "rgba(255,255,255,0.2)" }}
       >
         <Icon 
-          className="w-7 h-7" 
-          style={{ color: category.iconColor }}
+          className="w-5 h-5 text-white" 
           strokeWidth={2}
         />
       </div>
-      <h3 
-        className="text-base font-bold mb-1"
-        style={{ color: category.textColor }}
-      >
+      <h3 className="text-sm font-semibold text-white mb-0.5">
         {category.name}
       </h3>
-      <p 
-        className="text-xs"
-        style={{ color: category.subtextColor }}
-      >
+      <p className="text-xs text-white/70">
         {category.description}
       </p>
     </Link>
   );
 }
 
-// Default categories for initial rendering
 export const defaultCategories: Category[] = [
   {
     id: "1",
@@ -60,9 +52,9 @@ export const defaultCategories: Category[] = [
     description: "Rezervišite stolove",
     icon: "coffee",
     gradient: "gradient-cafe",
-    iconColor: "#57534E",
-    textColor: "#292524",
-    subtextColor: "#57534E",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
   {
@@ -73,9 +65,9 @@ export const defaultCategories: Category[] = [
     description: "Saloni & spa",
     icon: "sparkles",
     gradient: "gradient-beauty",
-    iconColor: "#7C3AED",
-    textColor: "#5B21B6",
-    subtextColor: "#6D28D9",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
   {
@@ -86,9 +78,9 @@ export const defaultCategories: Category[] = [
     description: "Profesionalno šišanje",
     icon: "scissors",
     gradient: "gradient-barber",
-    iconColor: "#F9FAFB",
-    textColor: "#F9FAFB",
-    subtextColor: "#E5E7EB",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
   {
@@ -99,9 +91,9 @@ export const defaultCategories: Category[] = [
     description: "Um i tijelo",
     icon: "activity",
     gradient: "gradient-wellness",
-    iconColor: "#059669",
-    textColor: "#047857",
-    subtextColor: "#059669",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
   {
@@ -112,9 +104,9 @@ export const defaultCategories: Category[] = [
     description: "Tereni i treninzi",
     icon: "globe",
     gradient: "gradient-sports",
-    iconColor: "#2563EB",
-    textColor: "#1E40AF",
-    subtextColor: "#2563EB",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
   {
@@ -125,9 +117,9 @@ export const defaultCategories: Category[] = [
     description: "Kućne popravke",
     icon: "wrench",
     gradient: "gradient-services",
-    iconColor: "#CA8A04",
-    textColor: "#854D0E",
-    subtextColor: "#A16207",
+    iconColor: "#FFFFFF",
+    textColor: "#FFFFFF",
+    subtextColor: "#FFFFFF",
     createdAt: new Date(),
   },
 ];

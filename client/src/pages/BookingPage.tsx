@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -24,7 +24,6 @@ export default function BookingPage() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
@@ -71,7 +70,7 @@ export default function BookingPage() {
     onSuccess: () => {
       toast({
         title: "Uspješno zakazano!",
-        description: "Vaša rezervacija je potvrđena. Primit ćete potvrdu putem email-a.",
+        description: "Vaša rezervacija je potvrđena.",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/bookings"] });
       navigate("/bookings");
@@ -119,51 +118,51 @@ export default function BookingPage() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-6 pt-8 pb-6 border-b border-border">
-        <div className="flex items-center gap-4 mb-4">
+      <header className="px-5 pt-5 pb-4 border-b border-border">
+        <div className="flex items-center gap-3">
           <Link href={`/business/${id}`}>
             <Button
               variant="ghost"
               size="icon"
-              className="w-10 h-10 rounded-full bg-secondary"
+              className="w-9 h-9 rounded-lg"
               data-testid="button-back"
               aria-label="Nazad"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-foreground" data-testid="text-booking-title">
+            <h1 className="text-base font-semibold text-foreground" data-testid="text-booking-title">
               Zakažite termin
             </h1>
-            <p className="text-sm text-muted-foreground">{business.name}</p>
+            <p className="text-xs text-muted-foreground">{business.name}</p>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-6 scroll-smooth">
-        {/* Service Selection (if services exist) */}
+      <main className="flex-1 overflow-y-auto px-5 py-5 pb-24 scroll-smooth">
+        {/* Service Selection */}
         {services && services.length > 0 && (
-          <section className="mb-8">
-            <h3 className="text-sm font-bold text-foreground mb-4">Odaberite uslugu</h3>
+          <section className="mb-6">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Odaberite uslugu</h3>
             <div className="space-y-2">
               {services.map((service) => (
                 <button
                   key={service.id}
                   type="button"
                   onClick={() => setSelectedService(service.id)}
-                  className={`w-full p-4 rounded-xl text-left transition-all ${
+                  className={`w-full p-3 rounded-lg text-left border transition-colors ${
                     selectedService === service.id
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-foreground hover:bg-secondary/80"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-card text-foreground border-border hover:bg-secondary"
                   }`}
                   data-testid={`service-${service.id}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{service.name}</p>
-                      <p className={`text-xs mt-1 ${
+                      <p className="text-sm font-medium">{service.name}</p>
+                      <p className={`text-xs mt-0.5 ${
                         selectedService === service.id 
                           ? "text-primary-foreground/70" 
                           : "text-muted-foreground"
@@ -172,9 +171,9 @@ export default function BookingPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold">{service.price} KM</span>
+                      <span className="text-sm font-semibold">{service.price} KM</span>
                       {selectedService === service.id && (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-4 h-4" />
                       )}
                     </div>
                   </div>
@@ -185,8 +184,8 @@ export default function BookingPage() {
         )}
 
         {/* Date Selection */}
-        <section className="mb-8">
-          <h3 className="text-sm font-bold text-foreground mb-4">Odaberite datum</h3>
+        <section className="mb-6">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Odaberite datum</h3>
           <BookingCalendar
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
@@ -195,8 +194,8 @@ export default function BookingPage() {
 
         {/* Time Selection */}
         {selectedDate && (
-          <section className="mb-6">
-            <h3 className="text-sm font-bold text-foreground mb-4">Odaberite vrijeme</h3>
+          <section className="mb-5">
+            <h3 className="text-sm font-semibold text-foreground mb-3">Odaberite vrijeme</h3>
             <TimeSlots
               selectedTime={selectedTime}
               onTimeSelect={setSelectedTime}
@@ -210,27 +209,20 @@ export default function BookingPage() {
       </main>
 
       {/* Book Button */}
-      <footer className="px-6 py-5 border-t border-border">
+      <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-card/95 backdrop-blur-sm border-t border-border">
         <Button
-          className="w-full py-6 text-base font-bold rounded-2xl gap-2"
+          className="w-full h-11 text-sm font-semibold rounded-lg"
           disabled={!canBook || createBookingMutation.isPending}
           onClick={() => createBookingMutation.mutate()}
           data-testid="button-confirm-booking"
         >
-          {createBookingMutation.isPending ? (
-            "Zakazivanje..."
-          ) : (
-            <>
-              <span>Zakažite termin</span>
-              <ArrowRight className="w-5 h-5" />
-            </>
-          )}
+          {createBookingMutation.isPending ? "Zakazivanje..." : "Potvrdi rezervaciju"}
         </Button>
-        <p className="text-center text-xs text-muted-foreground mt-3">
-          {canBook
-            ? `${selectedDate?.toLocaleDateString("sr-Latn")} u ${selectedTime}`
-            : "Odaberite datum i vrijeme za nastavak"}
-        </p>
+        {canBook && (
+          <p className="text-center text-xs text-muted-foreground mt-2">
+            {selectedDate?.toLocaleDateString("sr-Latn")} u {selectedTime}
+          </p>
+        )}
       </footer>
     </MobileContainer>
   );

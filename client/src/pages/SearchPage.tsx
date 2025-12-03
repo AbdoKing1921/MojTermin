@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearch } from "wouter";
+import { Star } from "lucide-react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { SearchInput } from "@/components/SearchInput";
-import { BusinessCard } from "@/components/BusinessCard";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { NoSearchResultsEmptyState } from "@/components/EmptyState";
-import { CategoryCard, defaultCategories } from "@/components/CategoryCard";
+import { defaultCategories } from "@/components/CategoryCard";
 import type { Business, Category } from "@shared/schema";
 import { Link } from "wouter";
 
@@ -34,8 +34,8 @@ export default function SearchPage() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-6 pt-8 pb-6">
-        <h1 className="text-2xl font-bold text-foreground mb-4" data-testid="text-search-title">
+      <header className="px-5 pt-6 pb-4">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground mb-3" data-testid="text-search-title">
           Pretraga
         </h1>
         <SearchInput 
@@ -46,11 +46,10 @@ export default function SearchPage() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 pb-24 scroll-smooth">
+      <main className="flex-1 overflow-y-auto px-5 pb-20 scroll-smooth">
         {searchQuery ? (
-          // Search Results
           <div>
-            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               Rezultati za "{searchQuery}"
             </h2>
             
@@ -59,11 +58,11 @@ export default function SearchPage() {
                 <LoadingSpinner />
               </div>
             ) : searchResults?.length ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {searchResults.map((business, index) => (
                   <Link key={business.id} href={`/business/${business.id}`} className="block">
-                    <div className="category-card soft-shadow rounded-2xl overflow-hidden bg-card flex">
-                      <div className={`w-24 h-24 business-gradient-${(index % 4) + 1} flex items-center justify-center flex-shrink-0`}>
+                    <div className="bg-card rounded-xl border border-border overflow-hidden flex hover:border-primary/30 transition-colors">
+                      <div className={`w-20 h-20 business-gradient-${(index % 4) + 1} flex items-center justify-center flex-shrink-0`}>
                         {business.imageUrl ? (
                           <img 
                             src={business.imageUrl} 
@@ -71,23 +70,28 @@ export default function SearchPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-white/20" />
+                          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center">
+                            <span className="text-white/60 text-sm font-medium">
+                              {business.name.charAt(0)}
+                            </span>
+                          </div>
                         )}
                       </div>
-                      <div className="p-4 flex-1 min-w-0">
-                        <h3 className="text-base font-bold text-foreground truncate">
+                      <div className="p-3 flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground truncate">
                           {business.name}
                         </h3>
-                        <p className="text-xs text-muted-foreground mb-2">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {business.city || "Lokacija"}
                           {business.distance && ` • ${business.distance}`}
                         </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-foreground">
+                        <div className="flex items-center gap-1.5 mt-1.5">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                          <span className="text-xs font-semibold text-foreground">
                             {business.rating || "0.0"}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            ({business.reviewCount || 0} recenzija)
+                            ({business.reviewCount || 0})
                           </span>
                         </div>
                       </div>
@@ -100,27 +104,26 @@ export default function SearchPage() {
             )}
           </div>
         ) : (
-          // Browse Categories
           <div>
-            <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               Pregledaj kategorije
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {displayCategories.map((category) => (
                 <Link
                   key={category.id}
                   href={`/category/${category.slug}`}
-                  className={`category-card focus-ring ${category.gradient} rounded-2xl p-5 text-left soft-shadow block`}
+                  className={`${category.gradient} rounded-xl p-4 text-left block hover:opacity-90 transition-opacity`}
                   data-testid={`search-category-${category.slug}`}
                 >
                   <h3 
-                    className="text-base font-bold mb-1"
+                    className="text-sm font-semibold"
                     style={{ color: category.textColor }}
                   >
                     {category.name}
                   </h3>
                   <p 
-                    className="text-xs"
+                    className="text-xs mt-0.5"
                     style={{ color: category.subtextColor }}
                   >
                     {category.description}

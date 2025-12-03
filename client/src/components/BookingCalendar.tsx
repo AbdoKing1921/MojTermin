@@ -89,12 +89,10 @@ export function BookingCalendar({
   const firstDayOfMonth = getFirstDayOfMonth(currentMonth, currentYear);
   const days = [];
 
-  // Empty cells for days before the first day of the month
   for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(<div key={`empty-${i}`} className="w-10 h-10" />);
+    days.push(<div key={`empty-${i}`} className="w-9 h-9" />);
   }
 
-  // Actual days
   for (let day = 1; day <= daysInMonth; day++) {
     const isBlocked = isDateBlocked(day);
     const isPast = isPastDate(day);
@@ -108,13 +106,13 @@ export function BookingCalendar({
         type="button"
         onClick={() => handleDateClick(day)}
         disabled={isDisabled}
-        className={`calendar-day w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all
+        className={`calendar-day w-9 h-9 rounded-lg flex items-center justify-center text-sm font-medium
           ${isSelected 
             ? "bg-primary text-primary-foreground" 
             : isTodayDate
-              ? "bg-primary/10 text-primary"
+              ? "bg-primary/10 text-primary border border-primary/20"
               : isDisabled
-                ? "opacity-40 cursor-not-allowed text-muted-foreground"
+                ? "opacity-30 cursor-not-allowed text-muted-foreground"
                 : "text-foreground hover:bg-secondary"
           }
         `}
@@ -127,21 +125,21 @@ export function BookingCalendar({
   }
 
   return (
-    <div className="bg-secondary rounded-3xl p-5 soft-shadow">
+    <div className="bg-card rounded-xl p-4 border border-border">
       {/* Month Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <Button
           type="button"
           variant="ghost"
           size="icon"
           onClick={handlePrevMonth}
-          className="w-9 h-9 rounded-full bg-card"
+          className="w-8 h-8 rounded-lg"
           data-testid="button-prev-month"
           aria-label="Prethodni mjesec"
         >
           <ChevronLeft className="w-4 h-4" />
         </Button>
-        <span className="text-sm font-bold text-foreground" data-testid="text-current-month">
+        <span className="text-sm font-semibold text-foreground" data-testid="text-current-month">
           {MONTHS[currentMonth]} {currentYear}
         </span>
         <Button
@@ -149,7 +147,7 @@ export function BookingCalendar({
           variant="ghost"
           size="icon"
           onClick={handleNextMonth}
-          className="w-9 h-9 rounded-full bg-card"
+          className="w-8 h-8 rounded-lg"
           data-testid="button-next-month"
           aria-label="Sljedeći mjesec"
         >
@@ -158,11 +156,11 @@ export function BookingCalendar({
       </div>
 
       {/* Weekday Labels */}
-      <div className="grid grid-cols-7 gap-2 mb-3">
+      <div className="grid grid-cols-7 gap-1 mb-2">
         {DAYS.map((day, index) => (
           <div
             key={index}
-            className="text-center text-xs font-medium text-muted-foreground"
+            className="text-center text-xs font-medium text-muted-foreground py-1"
           >
             {day}
           </div>
@@ -170,7 +168,7 @@ export function BookingCalendar({
       </div>
 
       {/* Calendar Grid */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-1">
         {days}
       </div>
     </div>

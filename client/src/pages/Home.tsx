@@ -22,13 +22,13 @@ export default function Home() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-6 pt-8 pb-6">
-        <div className="flex items-center justify-between mb-6">
+      <header className="px-5 pt-6 pb-4">
+        <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-1" data-testid="text-app-name">
+            <h1 className="text-xl font-semibold tracking-tight text-foreground" data-testid="text-app-name">
               MojTermin
             </h1>
-            <p className="text-sm text-muted-foreground" data-testid="text-tagline">
+            <p className="text-xs text-muted-foreground mt-0.5" data-testid="text-tagline">
               Zakažite bilo šta, bilo kada
             </p>
           </div>
@@ -39,15 +39,15 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 pb-24 scroll-smooth">
+      <main className="flex-1 overflow-y-auto px-5 pb-20 scroll-smooth">
         {/* Categories Section */}
-        <section className="mb-8">
-          <h2 className="text-lg font-bold text-foreground mb-4" data-testid="text-categories-title">
+        <section className="mb-6">
+          <h2 className="text-sm font-semibold text-foreground mb-3" data-testid="text-categories-title">
             Kategorije
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar cursor-grab active:cursor-grabbing">
+          <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
             {categoriesLoading ? (
-              <div className="flex items-center justify-center w-full py-8">
+              <div className="flex items-center justify-center w-full py-6">
                 <LoadingSpinner />
               </div>
             ) : (
@@ -60,12 +60,12 @@ export default function Home() {
 
         {/* Popular Businesses Section */}
         <section>
-          <h2 className="text-lg font-bold text-foreground mb-4" data-testid="text-popular-title">
+          <h2 className="text-sm font-semibold text-foreground mb-3" data-testid="text-popular-title">
             Popularni biznisi
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar cursor-grab active:cursor-grabbing">
+          <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
             {businessesLoading ? (
-              <div className="flex items-center justify-center w-full py-8">
+              <div className="flex items-center justify-center w-full py-6">
                 <LoadingSpinner />
               </div>
             ) : popularBusinesses?.length ? (
@@ -77,7 +77,7 @@ export default function Home() {
                 />
               ))
             ) : (
-              <div className="flex items-center justify-center w-full py-8">
+              <div className="flex items-center justify-center w-full py-6">
                 <p className="text-sm text-muted-foreground">
                   Nema dostupnih biznisa
                 </p>

@@ -1,4 +1,4 @@
-import { Home, Search, User, MoreVertical, Calendar } from "lucide-react";
+import { Home, Search, User, Calendar } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,7 +21,7 @@ export function BottomNavigation() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-card border-t border-border px-6 py-3 flex items-center justify-around z-50">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-card/95 backdrop-blur-sm border-t border-border px-4 py-2 flex items-center justify-around z-50">
       {navItems.map((item) => {
         const isActive = location === item.path || 
           (item.path !== "/" && location.startsWith(item.path));
@@ -32,12 +32,12 @@ export function BottomNavigation() {
             <a
               key={item.path}
               href="/api/login"
-              className="focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn"
+              className="focus-ring flex flex-col items-center gap-0.5 py-2 px-4 rounded-lg transition-colors nav-btn"
               data-testid={`nav-${item.label.toLowerCase()}`}
               aria-label={item.label}
             >
-              <Icon className="w-[22px] h-[22px]" strokeWidth={2} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+              <span className="text-[10px] font-medium">{item.label}</span>
             </a>
           );
         }
@@ -46,12 +46,12 @@ export function BottomNavigation() {
           <Link
             key={item.path}
             href={item.path}
-            className={`focus-ring flex flex-col items-center gap-1 py-2 px-3 rounded-xl transition-colors nav-btn ${isActive ? "active" : ""}`}
+            className={`focus-ring flex flex-col items-center gap-0.5 py-2 px-4 rounded-lg transition-colors nav-btn ${isActive ? "active" : ""}`}
             data-testid={`nav-${item.label.toLowerCase()}`}
             aria-label={item.label}
           >
-            <Icon className="w-[22px] h-[22px]" strokeWidth={2} />
-            <span className="text-xs font-medium">{item.label}</span>
+            <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+            <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         );
       })}

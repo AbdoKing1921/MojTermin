@@ -18,10 +18,10 @@ interface BookingWithBusiness extends Booking {
 }
 
 const statusColors: Record<string, string> = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-  confirmed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+  pending: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800",
+  confirmed: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800",
+  completed: "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-900/20 dark:text-sky-400 dark:border-sky-800",
+  cancelled: "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
 };
 
 const statusLabels: Record<string, string> = {
@@ -35,7 +35,6 @@ export default function UserBookings() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
       toast({
@@ -104,42 +103,42 @@ export default function UserBookings() {
   return (
     <MobileContainer>
       {/* Header */}
-      <header className="px-6 pt-8 pb-6 border-b border-border">
-        <h1 className="text-2xl font-bold text-foreground" data-testid="text-bookings-title">
+      <header className="px-5 pt-6 pb-4 border-b border-border">
+        <h1 className="text-xl font-semibold tracking-tight text-foreground" data-testid="text-bookings-title">
           Moje rezervacije
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Pregled svih vaših zakazanih termina
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Pregled vaših zakazanih termina
         </p>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-6 py-6 pb-24 scroll-smooth">
+      <main className="flex-1 overflow-y-auto px-5 py-5 pb-20 scroll-smooth">
         {bookings?.length === 0 ? (
           <NoBookingsEmptyState />
         ) : (
           <>
             {/* Upcoming Bookings */}
             {upcomingBookings.length > 0 && (
-              <section className="mb-8">
-                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">
+              <section className="mb-6">
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                   Nadolazeće
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {upcomingBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="p-4 bg-card rounded-2xl soft-shadow border border-border"
+                      className="p-4 bg-card rounded-xl border border-border"
                       data-testid={`booking-card-${booking.id}`}
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-base font-bold text-foreground">
+                          <h3 className="text-sm font-semibold text-foreground">
                             {booking.business?.name || "Biznis"}
                           </h3>
                           <Badge 
-                            variant="secondary" 
-                            className={statusColors[booking.status]}
+                            variant="outline" 
+                            className={`mt-1 text-[10px] font-medium border ${statusColors[booking.status]}`}
                           >
                             {statusLabels[booking.status]}
                           </Badge>
@@ -148,37 +147,36 @@ export default function UserBookings() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="w-8 h-8 text-muted-foreground hover:text-destructive"
                             onClick={() => cancelBookingMutation.mutate(booking.id)}
                             disabled={cancelBookingMutation.isPending}
                             data-testid={`button-cancel-${booking.id}`}
                             aria-label="Otkaži rezervaciju"
                           >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4" />
                           </Button>
                         )}
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Calendar className="w-3.5 h-3.5" />
                           <span>
                             {new Date(booking.date).toLocaleDateString("sr-Latn", {
-                              weekday: "long",
-                              year: "numeric",
-                              month: "long",
+                              weekday: "short",
                               day: "numeric",
+                              month: "short",
                             })}
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>{booking.time}</span>
                         </div>
                         {booking.business?.address && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <MapPin className="w-4 h-4" />
-                            <span>{booking.business.address}</span>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <MapPin className="w-3.5 h-3.5" />
+                            <span className="truncate">{booking.business.address}</span>
                           </div>
                         )}
                       </div>
@@ -191,39 +189,37 @@ export default function UserBookings() {
             {/* Past Bookings */}
             {pastBookings.length > 0 && (
               <section>
-                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-4">
+                <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
                   Prošle
                 </h2>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {pastBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="p-4 bg-card rounded-2xl soft-shadow border border-border opacity-75"
+                      className="p-4 bg-card rounded-xl border border-border opacity-60"
                       data-testid={`booking-card-${booking.id}`}
                     >
-                      <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="text-base font-bold text-foreground">
+                          <h3 className="text-sm font-semibold text-foreground">
                             {booking.business?.name || "Biznis"}
                           </h3>
                           <Badge 
-                            variant="secondary" 
-                            className={statusColors[booking.status]}
+                            variant="outline" 
+                            className={`mt-1 text-[10px] font-medium border ${statusColors[booking.status]}`}
                           >
                             {statusLabels[booking.status]}
                           </Badge>
                         </div>
                       </div>
                       
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {new Date(booking.date).toLocaleDateString("sr-Latn")}
-                          </span>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>{new Date(booking.date).toLocaleDateString("sr-Latn")}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>{booking.time}</span>
                         </div>
                       </div>

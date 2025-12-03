@@ -10,11 +10,11 @@ export function ProfileHeader() {
     return (
       <a
         href="/api/login"
-        className="focus-ring w-11 h-11 rounded-full bg-secondary flex items-center justify-center"
+        className="focus-ring w-9 h-9 rounded-lg bg-secondary flex items-center justify-center border border-border"
         data-testid="button-login"
         aria-label="Prijava"
       >
-        <User className="w-5 h-5 text-muted-foreground" />
+        <User className="w-4 h-4 text-muted-foreground" />
       </a>
     );
   }
@@ -26,13 +26,13 @@ export function ProfileHeader() {
       data-testid="link-profile"
       aria-label="Profil"
     >
-      <Avatar className="w-11 h-11">
+      <Avatar className="w-9 h-9">
         <AvatarImage 
           src={user?.profileImageUrl || undefined} 
           alt={user?.firstName || "Korisnik"} 
           className="object-cover"
         />
-        <AvatarFallback className="bg-secondary text-muted-foreground">
+        <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
           {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase() || "K"}
         </AvatarFallback>
       </Avatar>

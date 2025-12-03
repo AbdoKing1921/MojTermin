@@ -156,5 +156,5 @@ Preferred communication style: Simple, everyday language.
 - Automatically formats phone numbers for Bosnia (+387)
 
 **Planned/Optional Integrations**
-- Payment processing via Stripe (TODO)
+- Payment processing via Stripe (TODO - user can set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY secrets when ready)
 - Real-time features via WebSocket (ws package)

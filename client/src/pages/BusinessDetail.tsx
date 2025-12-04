@@ -12,10 +12,26 @@ import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Business, Service, Review, User } from "@shared/schema";
+import type { Business, Service, Review, User, BusinessHour, BusinessBreak, BusinessHoliday } from "@shared/schema";
 
 interface ReviewWithUser extends Review {
   user?: User;
+}
+
+function timeToMinutes(time: string): number {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+}
+
+function isTimeInRange(currentMinutes: number, startTime: string, endTime: string): boolean {
+  const start = timeToMinutes(startTime);
+  const end = timeToMinutes(endTime);
+  
+  if (end < start) {
+    return currentMinutes >= start || currentMinutes < end;
+  }
+  
+  return currentMinutes >= start && currentMinutes < end;
 }
 
 const gradients = [
@@ -43,6 +59,15 @@ export default function BusinessDetail() {
 
   const { data: reviews } = useQuery<ReviewWithUser[]>({
     queryKey: [`/api/businesses/${id}/reviews`],
+  });
+  
+  const { data: schedule, isLoading: scheduleLoading } = useQuery<{
+    hours: BusinessHour[];
+    breaks: BusinessBreak[];
+    holidays: BusinessHoliday[];
+  }>({
+    queryKey: [`/api/businesses/${id}/schedule`],
+    enabled: !!id,
   });
 
   const submitReviewMutation = useMutation({
@@ -90,15 +115,88 @@ export default function BusinessDetail() {
 
   const gradientClass = gradients[0];
   
-  const isCurrentlyOpen = () => {
+  const getBusinessStatus = (): { isOpen: boolean; statusText: string; isLoading: boolean } => {
+    if (scheduleLoading) {
+      return { isOpen: false, statusText: "Provjeravam...", isLoading: true };
+    }
+    
     const now = new Date();
-    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const currentDayOfWeek = now.getDay();
+    const previousDayOfWeek = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    if (schedule?.holidays) {
+      const isHoliday = schedule.holidays.some(h => h.date === todayStr);
+      if (isHoliday) {
+        return { isOpen: false, statusText: "Zatvoreno (praznik)", isLoading: false };
+      }
+    }
+    
+    if (schedule?.hours && schedule.hours.length > 0) {
+      const todayHours = schedule.hours.find(h => h.dayOfWeek === currentDayOfWeek);
+      const previousDayHours = schedule.hours.find(h => h.dayOfWeek === previousDayOfWeek);
+      
+      const isOvernightFromPreviousDay = previousDayHours && 
+        !previousDayHours.isClosed && 
+        timeToMinutes(previousDayHours.closeTime) < timeToMinutes(previousDayHours.openTime) &&
+        currentMinutes < timeToMinutes(previousDayHours.closeTime);
+      
+      if (isOvernightFromPreviousDay) {
+        if (schedule.breaks) {
+          const previousDayBreaks = schedule.breaks.filter(b => b.dayOfWeek === previousDayOfWeek);
+          for (const brk of previousDayBreaks) {
+            const breakStart = timeToMinutes(brk.startTime);
+            const breakEnd = timeToMinutes(brk.endTime);
+            
+            if (breakEnd < breakStart) {
+              if (currentMinutes < breakEnd) {
+                return { isOpen: false, statusText: brk.label ? `Pauza (${brk.label})` : "Pauza", isLoading: false };
+              }
+            } else if (breakStart < timeToMinutes(previousDayHours!.closeTime)) {
+              if (currentMinutes >= breakStart && currentMinutes < breakEnd) {
+                return { isOpen: false, statusText: brk.label ? `Pauza (${brk.label})` : "Pauza", isLoading: false };
+              }
+            }
+          }
+        }
+        return { isOpen: true, statusText: "Otvoreno", isLoading: false };
+      }
+      
+      if (!todayHours || todayHours.isClosed) {
+        return { isOpen: false, statusText: "Zatvoreno", isLoading: false };
+      }
+      
+      const isWithinHours = isTimeInRange(currentMinutes, todayHours.openTime, todayHours.closeTime);
+      
+      if (!isWithinHours) {
+        return { isOpen: false, statusText: "Zatvoreno", isLoading: false };
+      }
+      
+      if (schedule.breaks) {
+        const todayBreaks = schedule.breaks.filter(b => b.dayOfWeek === currentDayOfWeek);
+        for (const brk of todayBreaks) {
+          if (isTimeInRange(currentMinutes, brk.startTime, brk.endTime)) {
+            return { isOpen: false, statusText: brk.label ? `Pauza (${brk.label})` : "Pauza", isLoading: false };
+          }
+        }
+      }
+      
+      return { isOpen: true, statusText: "Otvoreno", isLoading: false };
+    }
+    
     const openTime = business.openTime || "09:00";
     const closeTime = business.closeTime || "18:00";
-    return currentTime >= openTime && currentTime < closeTime;
+    const isWithinDefaultHours = isTimeInRange(currentMinutes, openTime, closeTime);
+    
+    return { 
+      isOpen: isWithinDefaultHours, 
+      statusText: isWithinDefaultHours ? "Otvoreno" : "Zatvoreno",
+      isLoading: false
+    };
   };
   
-  const isOpen = isCurrentlyOpen();
+  const businessStatus = getBusinessStatus();
 
   return (
     <MobileContainer>
@@ -150,11 +248,11 @@ export default function BusinessDetail() {
             </Badge>
           )}
           <Badge 
-            className={`${isOpen ? 'bg-emerald-500 text-white' : 'bg-slate-500 text-white'} border-0 shadow-lg`}
+            className={`${businessStatus.isLoading ? 'bg-slate-400 text-white' : businessStatus.isOpen ? 'bg-emerald-500 text-white' : 'bg-slate-500 text-white'} border-0 shadow-lg`}
             data-testid="badge-status"
           >
-            <CheckCircle className="w-3.5 h-3.5 mr-1" />
-            {isOpen ? 'Otvoreno' : 'Zatvoreno'}
+            {!businessStatus.isLoading && <CheckCircle className="w-3.5 h-3.5 mr-1" />}
+            {businessStatus.statusText}
           </Badge>
         </div>
 

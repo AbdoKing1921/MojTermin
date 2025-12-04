@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
+import { motion } from "framer-motion";
 import { ArrowLeft, Star, MapPin, Clock, Phone, Mail, MessageSquare, Send, ChevronRight, Sparkles, Calendar, Heart, CheckCircle, Navigation } from "lucide-react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -201,7 +202,12 @@ export default function BusinessDetail() {
   return (
     <MobileContainer>
       {/* Hero Image with Gradient Overlay */}
-      <div className={`relative h-64 ${gradientClass}`}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 1.02 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        className={`relative h-64 ${gradientClass}`}
+      >
         {business.imageUrl ? (
           <img 
             src={business.imageUrl} 
@@ -279,10 +285,15 @@ export default function BusinessDetail() {
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto px-5 py-6 pb-32 scroll-smooth">
+      <motion.main 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+        className="flex-1 overflow-y-auto px-5 py-6 pb-32 scroll-smooth"
+      >
         {/* Description */}
         {business.description && (
           <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
@@ -524,7 +535,7 @@ export default function BusinessDetail() {
             </Card>
           )}
         </div>
-      </main>
+      </motion.main>
 
       {/* Book Button - Fixed Bottom */}
       <footer className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-5 py-4 bg-background/95 backdrop-blur-md border-t border-border safe-area-bottom">

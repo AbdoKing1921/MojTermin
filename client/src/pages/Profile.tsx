@@ -12,7 +12,7 @@ import { Link } from "wouter";
 
 export default function Profile() {
   const { toast } = useToast();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, logout, isLoggingOut } = useAuth();
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -51,17 +51,17 @@ export default function Profile() {
         <h1 className="text-xl font-semibold tracking-tight text-foreground" data-testid="text-profile-title">
           Profil
         </h1>
-        <a href="/api/logout">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-9 h-9 text-muted-foreground hover:text-destructive"
-            data-testid="button-logout"
-            aria-label="Odjava"
-          >
-            <LogOut className="w-4 h-4" />
-          </Button>
-        </a>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="w-9 h-9 text-muted-foreground hover:text-destructive"
+          data-testid="button-logout"
+          aria-label="Odjava"
+          onClick={logout}
+          disabled={isLoggingOut}
+        >
+          <LogOut className={`w-4 h-4 ${isLoggingOut ? 'animate-spin' : ''}`} />
+        </Button>
       </header>
 
       {/* Main Content */}

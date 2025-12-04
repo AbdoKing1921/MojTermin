@@ -15,7 +15,7 @@ export default function Profile() {
   const { user, isAuthenticated, isLoading: authLoading, logout, isLoggingOut } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated && !isLoggingOut) {
       toast({
         title: "Potrebna prijava",
         description: "Morate se prijaviti da vidite profil",
@@ -25,7 +25,7 @@ export default function Profile() {
         window.location.href = "/login";
       }, 500);
     }
-  }, [isAuthenticated, authLoading, toast]);
+  }, [isAuthenticated, authLoading, isLoggingOut, toast]);
 
   const { data: bookingStats } = useQuery<{ total: number; upcoming: number }>({
     queryKey: ["/api/bookings/stats"],
@@ -57,7 +57,21 @@ export default function Profile() {
           className="w-9 h-9 text-muted-foreground hover:text-destructive"
           data-testid="button-logout"
           aria-label="Odjava"
-          onClick={logout}
+          onClick={() => logout({
+            onSuccess: () => {
+              toast({
+                title: "Uspješna odjava",
+                description: "Vidimo se uskoro!",
+              });
+            },
+            onError: () => {
+              toast({
+                title: "Greška",
+                description: "Nije moguće odjaviti se. Pokušajte ponovo.",
+                variant: "destructive",
+              });
+            },
+          })}
           disabled={isLoggingOut}
         >
           <LogOut className={`w-4 h-4 ${isLoggingOut ? 'animate-spin' : ''}`} />

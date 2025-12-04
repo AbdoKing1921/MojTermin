@@ -23,6 +23,7 @@ import AdminUsers from "@/pages/AdminUsers";
 import AdminBusinessApproval from "@/pages/AdminBusinessApproval";
 import EmployeeManagement from "@/pages/EmployeeManagement";
 import BusinessSchedule from "@/pages/BusinessSchedule";
+import BusinessEdit from "@/pages/BusinessEdit";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
 import NotFound from "@/pages/not-found";
@@ -44,6 +45,7 @@ function AuthenticatedRoutes() {
       <Route path="/admin/businesses" component={AdminBusinessApproval} />
       <Route path="/admin/business/:businessId/employees" component={EmployeeManagement} />
       <Route path="/admin/business/:businessId/schedule" component={BusinessSchedule} />
+      <Route path="/admin/business/:businessId/edit" component={BusinessEdit} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />

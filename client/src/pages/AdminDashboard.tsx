@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft, CalendarOff, Trash2, ChevronLeft, ChevronRight, BarChart3, Shield } from "lucide-react";
+import { Calendar, Clock, Users, DollarSign, Check, X, Plus, Building2, ArrowLeft, CalendarOff, Trash2, ChevronLeft, ChevronRight, BarChart3, Shield, Settings } from "lucide-react";
 import { Link } from "wouter";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -308,25 +308,33 @@ export default function AdminDashboard() {
 
             {/* Business Management Links */}
             {selectedBusiness && (
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <Link href={`/admin/business/${selectedBusiness}/employees`}>
-                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-employees">
-                    <Users className="w-3.5 h-3.5" />
-                    Zaposleni
-                  </Button>
-                </Link>
-                <Link href={`/admin/business/${selectedBusiness}/schedule`}>
-                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-schedule">
-                    <Clock className="w-3.5 h-3.5" />
-                    Radno vrijeme
-                  </Button>
-                </Link>
-                <Link href="/admin/analytics">
-                  <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-analytics">
-                    <BarChart3 className="w-3.5 h-3.5" />
-                    Analitika
-                  </Button>
-                </Link>
+              <div className="space-y-3 mb-6">
+                <div className="grid grid-cols-2 gap-3">
+                  <Link href={`/admin/business/${selectedBusiness}/edit`}>
+                    <Button variant="outline" className="w-full text-xs gap-1.5 border-primary/30 text-primary" data-testid="button-edit-business">
+                      <Settings className="w-3.5 h-3.5" />
+                      Uredi biznis
+                    </Button>
+                  </Link>
+                  <Link href={`/admin/business/${selectedBusiness}/employees`}>
+                    <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-employees">
+                      <Users className="w-3.5 h-3.5" />
+                      Zaposleni
+                    </Button>
+                  </Link>
+                  <Link href={`/admin/business/${selectedBusiness}/schedule`}>
+                    <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-manage-schedule">
+                      <Clock className="w-3.5 h-3.5" />
+                      Radno vrijeme
+                    </Button>
+                  </Link>
+                  <Link href="/admin/analytics">
+                    <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-analytics">
+                      <BarChart3 className="w-3.5 h-3.5" />
+                      Analitika
+                    </Button>
+                  </Link>
+                </div>
                 <Link href="/admin/create-business">
                   <Button variant="outline" className="w-full text-xs gap-1.5" data-testid="button-new-business">
                     <Plus className="w-3.5 h-3.5" />

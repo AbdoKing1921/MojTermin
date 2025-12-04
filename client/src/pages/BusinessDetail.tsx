@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams, Link } from "wouter";
-import { ArrowLeft, Star, MapPin, Clock, Phone, Mail, MessageSquare, Send, ChevronRight, Sparkles, Calendar, Heart } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Clock, Phone, Mail, MessageSquare, Send, ChevronRight, Sparkles, Calendar, Heart, CheckCircle, Navigation } from "lucide-react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { LoadingScreen } from "@/components/LoadingSpinner";
 import { Button } from "@/components/ui/button";
@@ -89,11 +89,21 @@ export default function BusinessDetail() {
   }
 
   const gradientClass = gradients[0];
+  
+  const isCurrentlyOpen = () => {
+    const now = new Date();
+    const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const openTime = business.openTime || "09:00";
+    const closeTime = business.closeTime || "18:00";
+    return currentTime >= openTime && currentTime < closeTime;
+  };
+  
+  const isOpen = isCurrentlyOpen();
 
   return (
     <MobileContainer>
       {/* Hero Image with Gradient Overlay */}
-      <div className={`relative h-60 ${gradientClass}`}>
+      <div className={`relative h-64 ${gradientClass}`}>
         {business.imageUrl ? (
           <img 
             src={business.imageUrl} 
@@ -102,11 +112,13 @@ export default function BusinessDetail() {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
-            {/* Decorative circles */}
-            <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/10" />
-            <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/5" />
-            <div className="w-24 h-24 rounded-3xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-2xl relative z-10">
-              <span className="text-white text-4xl font-bold drop-shadow-lg">
+            {/* Decorative elements */}
+            <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/10" />
+            <div className="absolute top-1/4 -left-12 w-24 h-24 rounded-full bg-white/5" />
+            <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-white/5" />
+            <div className="absolute bottom-1/3 -right-8 w-20 h-20 rounded-full bg-white/8" />
+            <div className="w-28 h-28 rounded-3xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-2xl relative z-10 border border-white/20">
+              <span className="text-white text-5xl font-bold drop-shadow-lg">
                 {business.name.charAt(0)}
               </span>
             </div>
@@ -114,7 +126,7 @@ export default function BusinessDetail() {
         )}
         
         {/* Dark gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
         
         {/* Back Button */}
         <Link href="/">
@@ -129,20 +141,29 @@ export default function BusinessDetail() {
           </Button>
         </Link>
 
-        {/* Sponsored Badge */}
-        {business.isSponsored && (
-          <Badge className="absolute top-4 right-4 bg-amber-400 text-amber-900 border-0 shadow-lg">
-            <Sparkles className="w-3.5 h-3.5 mr-1" />
-            Top izbor
+        {/* Top Right Badges */}
+        <div className="absolute top-4 right-4 flex flex-col gap-2 items-end">
+          {business.isSponsored && (
+            <Badge className="bg-amber-400 text-amber-900 border-0 shadow-lg">
+              <Sparkles className="w-3.5 h-3.5 mr-1" />
+              Top izbor
+            </Badge>
+          )}
+          <Badge 
+            className={`${isOpen ? 'bg-emerald-500 text-white' : 'bg-slate-500 text-white'} border-0 shadow-lg`}
+            data-testid="badge-status"
+          >
+            <CheckCircle className="w-3.5 h-3.5 mr-1" />
+            {isOpen ? 'Otvoreno' : 'Zatvoreno'}
           </Badge>
-        )}
+        </div>
 
         {/* Business Name Overlay */}
         <div className="absolute bottom-0 left-0 right-0 p-5">
           <h1 className="text-2xl font-bold text-white mb-2 drop-shadow-lg" data-testid="text-business-name">
             {business.name}
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
               <span className="text-sm font-bold text-white">
@@ -152,6 +173,12 @@ export default function BusinessDetail() {
             <span className="text-sm text-white/90">
               {business.reviewCount || 0} recenzija
             </span>
+            {business.city && (
+              <div className="flex items-center gap-1 text-white/80">
+                <Navigation className="w-3.5 h-3.5" />
+                <span className="text-sm">{business.city}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

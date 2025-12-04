@@ -376,6 +376,43 @@ export async function registerRoutes(
     }
   });
 
+  // Update business details (for owners)
+  app.put('/api/admin/businesses/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      // Verify ownership
+      const business = await storage.getBusinessById(businessId);
+      if (!business) {
+        return res.status(404).json({ message: "Business not found" });
+      }
+      if (business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized to update this business" });
+      }
+      
+      const { name, description, address, city, phone, email, imageUrl, openTime, closeTime, slotDuration } = req.body;
+      
+      const updated = await storage.updateBusiness(businessId, {
+        name,
+        description,
+        address,
+        city,
+        phone,
+        email,
+        imageUrl,
+        openTime,
+        closeTime,
+        slotDuration,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating business:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
+
   // Get bookings for owner's business
   app.get('/api/admin/businesses/:id/bookings', isAuthenticated, async (req: any, res) => {
     try {

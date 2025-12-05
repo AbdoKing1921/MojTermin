@@ -21,6 +21,8 @@ import {
   Image,
   MapPin,
   LogOut,
+  Home,
+  ArrowLeft,
 } from "lucide-react";
 import type { Business } from "@shared/schema";
 
@@ -196,9 +198,9 @@ export default function OwnerLayout({ children, title, subtitle }: OwnerLayoutPr
             </nav>
           </ScrollArea>
 
-          {/* User Info & Logout */}
-          <div className="p-4 border-t border-border">
-            <div className="flex items-center gap-3 mb-3">
+          {/* User Info & Actions */}
+          <div className="p-4 border-t border-border space-y-3">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-sm font-medium text-primary">
                   {user?.firstName?.[0] || "V"}
@@ -213,6 +215,19 @@ export default function OwnerLayout({ children, title, subtitle }: OwnerLayoutPr
                 </p>
               </div>
             </div>
+            
+            {/* Exit to main app */}
+            <Link href="/">
+              <Button
+                variant="secondary"
+                className="w-full gap-2 text-sm"
+                data-testid="button-exit-owner-panel"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Nazad na aplikaciju
+              </Button>
+            </Link>
+            
             <Button
               variant="outline"
               className="w-full gap-2 text-sm"

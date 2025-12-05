@@ -645,10 +645,17 @@ export async function registerRoutes(
     }
   });
 
-  // Update user role to business_owner
+  // Update user role to business_owner (but don't downgrade admins)
   app.post('/api/admin/become-owner', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.id;
+      const currentUser = await storage.getUser(userId);
+      
+      // Don't downgrade admins - they already have all permissions
+      if (currentUser && currentUser.role === "admin") {
+        return res.json(currentUser);
+      }
+      
       const user = await storage.updateUserRole(userId, "business_owner");
       res.json(user);
     } catch (error) {
@@ -710,8 +717,12 @@ export async function registerRoutes(
     try {
       const userId = req.user.id;
       
-      // First, make user an owner if not already
-      await storage.updateUserRole(userId, "business_owner");
+      // Check current user role - don't downgrade admins
+      const currentUser = await storage.getUser(userId);
+      if (currentUser && currentUser.role !== "admin") {
+        // Only upgrade to business_owner if not already admin
+        await storage.updateUserRole(userId, "business_owner");
+      }
       
       const businessData = {
         ownerId: userId,

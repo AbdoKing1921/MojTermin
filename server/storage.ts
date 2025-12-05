@@ -104,6 +104,7 @@ export interface IStorage {
   // Booking operations
   getBookingsByUser(userId: string): Promise<(Booking & { business?: Business; employee?: Employee })[]>;
   getBookingsByBusiness(businessId: string): Promise<(Booking & { user?: User; employee?: Employee; service?: Service })[]>;
+  getBookingsByBusinessAndDate(businessId: string, date: string): Promise<(Booking & { user?: User; employee?: Employee; service?: Service })[]>;
   getBookingById(id: string): Promise<Booking | undefined>;
   getBookedSlots(businessId: string, date: string, employeeId?: string): Promise<{ time: string; endTime: string | null }[]>;
   createBooking(booking: InsertBooking): Promise<Booking>;
@@ -126,6 +127,19 @@ export interface IStorage {
     totalRevenue: number;
     averageBookingValue: number;
     completionRate: number;
+  }>;
+  
+  getBusinessAnalytics(businessId: string, days: number): Promise<{
+    totalBookings: number;
+    confirmedBookings: number;
+    cancelledBookings: number;
+    completedBookings: number;
+    totalRevenue: number;
+    averageBookingValue: number;
+    completionRate: number;
+    bookingsByDay: { date: string; count: number }[];
+    bookingsByService: { service: string; count: number; revenue: number }[];
+    topEmployees: { name: string; bookings: number; revenue: number }[];
   }>;
   
   // Review operations
@@ -526,6 +540,32 @@ export class DatabaseStorage implements IStorage {
     return booking;
   }
 
+  async getBookingsByBusinessAndDate(businessId: string, date: string): Promise<(Booking & { user?: User; employee?: Employee; service?: Service })[]> {
+    const result = await db
+      .select({
+        booking: bookings,
+        user: users,
+        employee: employees,
+        service: services,
+      })
+      .from(bookings)
+      .leftJoin(users, eq(bookings.userId, users.id))
+      .leftJoin(employees, eq(bookings.employeeId, employees.id))
+      .leftJoin(services, eq(bookings.serviceId, services.id))
+      .where(and(
+        eq(bookings.businessId, businessId),
+        eq(bookings.date, date)
+      ))
+      .orderBy(asc(bookings.time));
+    
+    return result.map(r => ({
+      ...r.booking,
+      user: r.user || undefined,
+      employee: r.employee || undefined,
+      service: r.service || undefined,
+    }));
+  }
+
   async getBookedSlots(businessId: string, date: string, employeeId?: string): Promise<{ time: string; endTime: string | null }[]> {
     let conditions = and(
       eq(bookings.businessId, businessId),
@@ -720,6 +760,109 @@ export class DatabaseStorage implements IStorage {
       totalRevenue,
       averageBookingValue,
       completionRate,
+    };
+  }
+
+  async getBusinessAnalytics(businessId: string, days: number): Promise<{
+    totalBookings: number;
+    confirmedBookings: number;
+    cancelledBookings: number;
+    completedBookings: number;
+    totalRevenue: number;
+    averageBookingValue: number;
+    completionRate: number;
+    bookingsByDay: { date: string; count: number }[];
+    bookingsByService: { service: string; count: number; revenue: number }[];
+    topEmployees: { name: string; bookings: number; revenue: number }[];
+  }> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
+    
+    const startDateStr = startDate.toISOString().split("T")[0];
+    const endDateStr = endDate.toISOString().split("T")[0];
+    
+    const allBookingsRaw = await db
+      .select({
+        booking: bookings,
+        service: services,
+        employee: employees,
+      })
+      .from(bookings)
+      .leftJoin(services, eq(bookings.serviceId, services.id))
+      .leftJoin(employees, eq(bookings.employeeId, employees.id))
+      .where(eq(bookings.businessId, businessId));
+    
+    const allBookings = allBookingsRaw.filter(({ booking }) => {
+      const bookingDate = new Date(booking.date);
+      return bookingDate >= startDate && bookingDate <= endDate;
+    });
+    
+    const totalBookings = allBookings.length;
+    const confirmedBookings = allBookings.filter(b => b.booking.status === "confirmed").length;
+    const cancelledBookings = allBookings.filter(b => b.booking.status === "cancelled").length;
+    const completedBookings = allBookings.filter(b => b.booking.status === "completed").length;
+    
+    const revenueBookings = allBookings.filter(
+      b => b.booking.status === "completed" || b.booking.status === "confirmed"
+    );
+    const totalRevenue = revenueBookings.reduce(
+      (sum, b) => sum + (parseFloat(b.booking.totalPrice || "0") || 0), 0
+    );
+    const averageBookingValue = revenueBookings.length > 0 
+      ? totalRevenue / revenueBookings.length 
+      : 0;
+    const completionRate = totalBookings > 0
+      ? ((completedBookings + confirmedBookings) / totalBookings) * 100
+      : 0;
+    
+    const dayMap = new Map<string, number>();
+    allBookings.forEach(({ booking }) => {
+      dayMap.set(booking.date, (dayMap.get(booking.date) || 0) + 1);
+    });
+    const bookingsByDay = Array.from(dayMap.entries())
+      .map(([date, count]) => ({ date, count }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+    
+    const serviceMap = new Map<string, { count: number; revenue: number }>();
+    allBookings.forEach(({ booking, service }) => {
+      const serviceName = service?.name || "Bez usluge";
+      const current = serviceMap.get(serviceName) || { count: 0, revenue: 0 };
+      current.count++;
+      if (booking.status === "completed" || booking.status === "confirmed") {
+        current.revenue += parseFloat(booking.totalPrice || "0") || 0;
+      }
+      serviceMap.set(serviceName, current);
+    });
+    const bookingsByService = Array.from(serviceMap.entries())
+      .map(([service, data]) => ({ service, ...data }))
+      .sort((a, b) => b.count - a.count);
+    
+    const employeeMap = new Map<string, { bookings: number; revenue: number }>();
+    allBookings.forEach(({ booking, employee }) => {
+      const employeeName = employee?.name || "Nepoznato";
+      const current = employeeMap.get(employeeName) || { bookings: 0, revenue: 0 };
+      current.bookings++;
+      if (booking.status === "completed" || booking.status === "confirmed") {
+        current.revenue += parseFloat(booking.totalPrice || "0") || 0;
+      }
+      employeeMap.set(employeeName, current);
+    });
+    const topEmployees = Array.from(employeeMap.entries())
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.bookings - a.bookings);
+    
+    return {
+      totalBookings,
+      confirmedBookings,
+      cancelledBookings,
+      completedBookings,
+      totalRevenue,
+      averageBookingValue,
+      completionRate,
+      bookingsByDay,
+      bookingsByService,
+      topEmployees,
     };
   }
 

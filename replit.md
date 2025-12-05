@@ -152,6 +152,24 @@ Preferred communication style: Simple, everyday language.
 - Profile page links to admin panel for easy access
 - Ownership verification enforced on all admin API routes
 
+**Owner Dashboard (Moj Salon)**
+- Comprehensive owner panel at `/owner` for business owners to manage their salons
+- Features sidebar navigation for desktop-friendly UX
+- Pages included:
+  - `/owner` - Dashboard overview with quick stats
+  - `/owner/profile` - Edit business name, description, contact info
+  - `/owner/gallery` - Manage salon images and cover photo
+  - `/owner/location` - Edit address, city, and map coordinates
+  - `/owner/hours` - Configure working hours with minute precision
+  - `/owner/employees` - CRUD operations for employees with permissions
+  - `/owner/services` - Manage services, pricing, and duration
+  - `/owner/bookings` - View and manage daily reservations
+  - `/owner/analytics` - Business performance metrics
+  - `/owner/settings` - Business status, notifications, danger zone
+- All owner routes protected with ownership verification
+- API endpoints under `/api/owner/*` prefix
+- Accessible via "Moj Salon" button on profile page
+
 **Super Admin (Glavni Administrator)**
 - User with email `abdullahdemirovic7@gmail.com` is the main admin
 - Admin users have access to `/admin/users` for user management

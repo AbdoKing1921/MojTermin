@@ -28,6 +28,17 @@ import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
 import NotFound from "@/pages/not-found";
 
+import OwnerDashboard from "@/pages/owner/OwnerDashboard";
+import OwnerBusinessProfile from "@/pages/owner/OwnerBusinessProfile";
+import OwnerGallery from "@/pages/owner/OwnerGallery";
+import OwnerLocation from "@/pages/owner/OwnerLocation";
+import OwnerWorkingHours from "@/pages/owner/OwnerWorkingHours";
+import OwnerEmployees from "@/pages/owner/OwnerEmployees";
+import OwnerServices from "@/pages/owner/OwnerServices";
+import OwnerBookings from "@/pages/owner/OwnerBookings";
+import OwnerAnalytics from "@/pages/owner/OwnerAnalytics";
+import OwnerSettings from "@/pages/owner/OwnerSettings";
+
 function AuthenticatedRoutes() {
   return (
     <Switch>
@@ -46,6 +57,16 @@ function AuthenticatedRoutes() {
       <Route path="/admin/business/:businessId/employees" component={EmployeeManagement} />
       <Route path="/admin/business/:businessId/schedule" component={BusinessSchedule} />
       <Route path="/admin/business/:businessId/edit" component={BusinessEdit} />
+      <Route path="/owner" component={OwnerDashboard} />
+      <Route path="/owner/profile" component={OwnerBusinessProfile} />
+      <Route path="/owner/gallery" component={OwnerGallery} />
+      <Route path="/owner/location" component={OwnerLocation} />
+      <Route path="/owner/hours" component={OwnerWorkingHours} />
+      <Route path="/owner/employees" component={OwnerEmployees} />
+      <Route path="/owner/services" component={OwnerServices} />
+      <Route path="/owner/bookings" component={OwnerBookings} />
+      <Route path="/owner/analytics" component={OwnerAnalytics} />
+      <Route path="/owner/settings" component={OwnerSettings} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />

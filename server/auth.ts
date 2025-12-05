@@ -182,7 +182,7 @@ export const isAuthenticated: RequestHandler = async (req, res, next) => {
     }
 
     // Attach user to request
-    req.user = {
+    (req as any).user = {
       id: user.id,
       email: user.email!,
       firstName: user.firstName,

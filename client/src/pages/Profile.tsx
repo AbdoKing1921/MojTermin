@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LogOut, Mail, Phone, Calendar, Building2 } from "lucide-react";
+import { LogOut, Mail, Phone, Calendar, Building2, Settings2, ShieldCheck } from "lucide-react";
 import { MobileContainer } from "@/components/MobileContainer";
 import { BottomNavigation } from "@/components/BottomNavigation";
 import { LoadingScreen } from "@/components/LoadingSpinner";
@@ -176,14 +176,38 @@ export default function Profile() {
             </Button>
           </Link>
           {(user?.role === 'business_owner' || user?.role === 'admin') && (
-            <Link href="/admin">
+            <>
+              <Link href="/owner">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-2 h-11"
+                  data-testid="link-owner-panel"
+                >
+                  <Settings2 className="w-4 h-4" />
+                  Moj Salon
+                </Button>
+              </Link>
+              <Link href="/admin">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-2 h-11"
+                  data-testid="link-admin-panel"
+                >
+                  <Building2 className="w-4 h-4" />
+                  Admin Panel
+                </Button>
+              </Link>
+            </>
+          )}
+          {user?.role === 'admin' && (
+            <Link href="/admin/users">
               <Button 
                 variant="outline" 
                 className="w-full justify-start gap-2 h-11"
-                data-testid="link-admin-panel"
+                data-testid="link-superadmin"
               >
-                <Building2 className="w-4 h-4" />
-                Admin Panel
+                <ShieldCheck className="w-4 h-4" />
+                Super Admin
               </Button>
             </Link>
           )}

@@ -68,6 +68,11 @@ export const businesses = pgTable("businesses", {
   phone: varchar("phone"),
   email: varchar("email"),
   imageUrl: varchar("image_url"),
+  coverImage: varchar("cover_image"), // Hero/cover image for business page
+  galleryImages: text("gallery_images").array(), // Multiple gallery images
+  latitude: decimal("latitude", { precision: 10, scale: 7 }), // Map coordinates
+  longitude: decimal("longitude", { precision: 10, scale: 7 }), // Map coordinates
+  googlePlaceId: varchar("google_place_id"), // For Google Maps integration
   rating: decimal("rating", { precision: 2, scale: 1 }).default("0"),
   reviewCount: integer("review_count").default(0),
   distance: varchar("distance"),
@@ -87,12 +92,16 @@ export const businesses = pgTable("businesses", {
 export const employees = pgTable("employees", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   businessId: varchar("business_id").references(() => businesses.id).notNull(),
+  userId: varchar("user_id").references(() => users.id), // Links to user for login
   name: varchar("name").notNull(),
   title: varchar("title"), // e.g., "Frizer", "Brijač", "Kozmetičar"
   email: varchar("email"),
   phone: varchar("phone"),
   imageUrl: varchar("image_url"),
   isActive: boolean("is_active").default(true),
+  canManageSchedule: boolean("can_manage_schedule").default(true), // Can edit own schedule
+  canViewAllBookings: boolean("can_view_all_bookings").default(false), // Can see all business bookings
+  canManageBookings: boolean("can_manage_bookings").default(false), // Can confirm/cancel bookings
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -229,6 +238,10 @@ export const employeesRelations = relations(employees, ({ one, many }) => ({
   business: one(businesses, {
     fields: [employees.businessId],
     references: [businesses.id],
+  }),
+  user: one(users, {
+    fields: [employees.userId],
+    references: [users.id],
   }),
   employeeServices: many(employeeServices),
   bookings: many(bookings),

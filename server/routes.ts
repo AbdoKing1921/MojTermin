@@ -1189,5 +1189,655 @@ export async function registerRoutes(
     }
   });
 
+  // ==================== OWNER PANEL ROUTES ====================
+
+  // Get owner's businesses
+  app.get('/api/owner/businesses', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businesses = await storage.getBusinessesByOwner(userId);
+      res.json(businesses);
+    } catch (error) {
+      console.error("Error fetching owner businesses:", error);
+      res.status(500).json({ message: "Failed to fetch businesses" });
+    }
+  });
+
+  // Get owner stats
+  app.get('/api/owner/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const stats = await storage.getOwnerStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching owner stats:", error);
+      res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // Get recent bookings for owner
+  app.get('/api/owner/recent-bookings', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businesses = await storage.getBusinessesByOwner(userId);
+      if (businesses.length === 0) {
+        return res.json([]);
+      }
+      
+      const businessId = businesses[0].id;
+      const allBookings = await storage.getBookingsByBusiness(businessId);
+      const recentBookings = allBookings.slice(0, 5);
+      res.json(recentBookings);
+    } catch (error) {
+      console.error("Error fetching recent bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Get all employees for owner's businesses
+  app.get('/api/owner/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businesses = await storage.getBusinessesByOwner(userId);
+      if (businesses.length === 0) {
+        return res.json([]);
+      }
+      
+      const businessId = businesses[0].id;
+      const employees = await storage.getEmployeesByBusiness(businessId);
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // Update business profile (owner version)
+  app.put('/api/owner/businesses/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateBusiness(businessId, {
+        name: req.body.name,
+        description: req.body.description,
+        address: req.body.address,
+        city: req.body.city,
+        phone: req.body.phone,
+        email: req.body.email,
+        categoryId: req.body.categoryId,
+        slotDuration: req.body.slotDuration,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating business:", error);
+      res.status(500).json({ message: "Failed to update business" });
+    }
+  });
+
+  // Get all services for owner's businesses
+  app.get('/api/owner/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businesses = await storage.getBusinessesByOwner(userId);
+      if (businesses.length === 0) {
+        return res.json([]);
+      }
+      
+      const businessId = businesses[0].id;
+      const services = await storage.getServicesByBusiness(businessId);
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  // Get business hours (owner version)
+  app.get('/api/owner/businesses/:id/hours', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const hours = await storage.getBusinessHours(businessId);
+      res.json(hours);
+    } catch (error) {
+      console.error("Error fetching business hours:", error);
+      res.status(500).json({ message: "Failed to fetch hours" });
+    }
+  });
+
+  // Get business breaks (owner version)
+  app.get('/api/owner/businesses/:id/breaks', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const breaks = await storage.getBusinessBreaks(businessId);
+      res.json(breaks);
+    } catch (error) {
+      console.error("Error fetching business breaks:", error);
+      res.status(500).json({ message: "Failed to fetch breaks" });
+    }
+  });
+
+  // Get business holidays (owner version)
+  app.get('/api/owner/businesses/:id/holidays', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const holidays = await storage.getBusinessHolidays(businessId);
+      res.json(holidays);
+    } catch (error) {
+      console.error("Error fetching business holidays:", error);
+      res.status(500).json({ message: "Failed to fetch holidays" });
+    }
+  });
+
+  // Get business employees (owner version)
+  app.get('/api/owner/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employees = await storage.getEmployeesByBusiness(businessId);
+      res.json(employees);
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+      res.status(500).json({ message: "Failed to fetch employees" });
+    }
+  });
+
+  // Get business services (owner version)
+  app.get('/api/owner/businesses/:id/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const services = await storage.getServicesByBusiness(businessId);
+      res.json(services);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      res.status(500).json({ message: "Failed to fetch services" });
+    }
+  });
+
+  // Get business analytics (owner version)
+  app.get('/api/owner/businesses/:id/analytics/:days', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      const days = parseInt(req.params.days) || 30;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const analytics = await storage.getBusinessAnalytics(businessId, days);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
+  // Update business location
+  app.put('/api/owner/businesses/:id/location', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateBusiness(businessId, {
+        address: req.body.address,
+        city: req.body.city,
+        latitude: req.body.latitude,
+        longitude: req.body.longitude,
+        googlePlaceId: req.body.googlePlaceId,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating location:", error);
+      res.status(500).json({ message: "Failed to update location" });
+    }
+  });
+
+  // Update business hours (owner version)
+  app.put('/api/owner/businesses/:id/hours', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const hours = req.body.hours.map((h: any) => ({
+        businessId,
+        dayOfWeek: h.dayOfWeek,
+        openTime: h.openTime,
+        closeTime: h.closeTime,
+        isClosed: h.isClosed || false,
+      }));
+      
+      const savedHours = await storage.setBusinessHours(businessId, hours);
+      res.json(savedHours);
+    } catch (error) {
+      console.error("Error setting business hours:", error);
+      res.status(500).json({ message: "Failed to set hours" });
+    }
+  });
+
+  // Add business break (owner version)
+  app.post('/api/owner/businesses/:id/breaks', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const breakData = {
+        businessId,
+        dayOfWeek: req.body.dayOfWeek,
+        startTime: req.body.startTime,
+        endTime: req.body.endTime,
+        label: req.body.label || null,
+      };
+      
+      const newBreak = await storage.addBusinessBreak(breakData);
+      res.status(201).json(newBreak);
+    } catch (error) {
+      console.error("Error adding break:", error);
+      res.status(500).json({ message: "Failed to add break" });
+    }
+  });
+
+  // Delete business break (owner version)
+  app.delete('/api/owner/businesses/:id/breaks/:breakId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.removeBusinessBreak(req.params.breakId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting break:", error);
+      res.status(500).json({ message: "Failed to delete break" });
+    }
+  });
+
+  // Add business holiday (owner version)
+  app.post('/api/owner/businesses/:id/holidays', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const holidayData = {
+        businessId,
+        date: req.body.date,
+        label: req.body.label || null,
+      };
+      
+      const holiday = await storage.addBusinessHoliday(holidayData);
+      res.status(201).json(holiday);
+    } catch (error) {
+      console.error("Error adding holiday:", error);
+      res.status(500).json({ message: "Failed to add holiday" });
+    }
+  });
+
+  // Delete business holiday (owner version)
+  app.delete('/api/owner/businesses/:id/holidays/:holidayId', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.removeBusinessHoliday(req.params.holidayId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting holiday:", error);
+      res.status(500).json({ message: "Failed to delete holiday" });
+    }
+  });
+
+  // Create employee (owner version)
+  app.post('/api/owner/businesses/:id/employees', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const employeeData = {
+        businessId,
+        name: req.body.name,
+        title: req.body.title || null,
+        email: req.body.email || null,
+        phone: req.body.phone || null,
+        canManageSchedule: req.body.canManageSchedule ?? true,
+        canViewAllBookings: req.body.canViewAllBookings ?? false,
+        canManageBookings: req.body.canManageBookings ?? false,
+      };
+      
+      const employee = await storage.createEmployee(employeeData);
+      res.status(201).json(employee);
+    } catch (error) {
+      console.error("Error creating employee:", error);
+      res.status(500).json({ message: "Failed to create employee" });
+    }
+  });
+
+  // Update employee
+  app.put('/api/owner/employees/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const employeeId = req.params.id;
+      
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateEmployee(employeeId, {
+        name: req.body.name,
+        title: req.body.title,
+        email: req.body.email,
+        phone: req.body.phone,
+        canManageSchedule: req.body.canManageSchedule,
+        canViewAllBookings: req.body.canViewAllBookings,
+        canManageBookings: req.body.canManageBookings,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      res.status(500).json({ message: "Failed to update employee" });
+    }
+  });
+
+  // Toggle employee active status
+  app.patch('/api/owner/employees/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const employeeId = req.params.id;
+      
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateEmployee(employeeId, {
+        isActive: req.body.isActive,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating employee status:", error);
+      res.status(500).json({ message: "Failed to update status" });
+    }
+  });
+
+  // Delete employee
+  app.delete('/api/owner/employees/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const employeeId = req.params.id;
+      
+      const employee = await storage.getEmployeeById(employeeId);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const business = await storage.getBusinessById(employee.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteEmployee(employeeId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting employee:", error);
+      res.status(500).json({ message: "Failed to delete employee" });
+    }
+  });
+
+  // Create service (owner version)
+  app.post('/api/owner/businesses/:id/services', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const serviceData = {
+        businessId,
+        name: req.body.name,
+        description: req.body.description || null,
+        price: req.body.price.toString(),
+        duration: req.body.duration,
+        isActive: true,
+      };
+      
+      const service = await storage.createService(serviceData);
+      res.status(201).json(service);
+    } catch (error) {
+      console.error("Error creating service:", error);
+      res.status(500).json({ message: "Failed to create service" });
+    }
+  });
+
+  // Update service (owner version)
+  app.put('/api/owner/services/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const serviceId = req.params.id;
+      
+      const service = await storage.getServiceById(serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      const business = await storage.getBusinessById(service.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateService(serviceId, {
+        name: req.body.name,
+        description: req.body.description,
+        price: req.body.price?.toString(),
+        duration: req.body.duration,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating service:", error);
+      res.status(500).json({ message: "Failed to update service" });
+    }
+  });
+
+  // Delete service (owner version)
+  app.delete('/api/owner/services/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const serviceId = req.params.id;
+      
+      const service = await storage.getServiceById(serviceId);
+      if (!service) {
+        return res.status(404).json({ message: "Service not found" });
+      }
+      
+      const business = await storage.getBusinessById(service.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      await storage.deleteService(serviceId);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ message: "Failed to delete service" });
+    }
+  });
+
+  // Get bookings for a specific date (owner version)
+  app.get('/api/owner/businesses/:id/bookings/:date', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      const date = req.params.date;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const bookings = await storage.getBookingsByBusinessAndDate(businessId, date);
+      res.json(bookings);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      res.status(500).json({ message: "Failed to fetch bookings" });
+    }
+  });
+
+  // Update booking status (owner version)
+  app.patch('/api/owner/bookings/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const bookingId = req.params.id;
+      
+      const booking = await storage.getBookingById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      
+      const business = await storage.getBusinessById(booking.businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateBookingStatus(bookingId, req.body.status);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating booking status:", error);
+      res.status(500).json({ message: "Failed to update booking status" });
+    }
+  });
+
+  // Toggle business active status (owner version)
+  app.patch('/api/owner/businesses/:id/status', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const updated = await storage.updateBusiness(businessId, {
+        isActive: req.body.isActive,
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating business status:", error);
+      res.status(500).json({ message: "Failed to update status" });
+    }
+  });
+
+  // Get analytics for business (owner version)
+  app.get('/api/owner/businesses/:id/analytics/:days', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.id;
+      const businessId = req.params.id;
+      const days = parseInt(req.params.days) || 30;
+      
+      const business = await storage.getBusinessById(businessId);
+      if (!business || business.ownerId !== userId) {
+        return res.status(403).json({ message: "Not authorized" });
+      }
+      
+      const analytics = await storage.getBusinessAnalytics(businessId, days);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching analytics:", error);
+      res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+  });
+
   return httpServer;
 }

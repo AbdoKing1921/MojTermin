@@ -171,7 +171,7 @@ Preferred communication style: Simple, everyday language.
 - Accessible via "Moj Salon" button on profile page
 
 **Super Admin (Glavni Administrator)**
-- User with email `abdullahdemirovic7@gmail.com` is the main admin
+- Admin users: `abdullahdemirovic7@gmail.com`, `demirovicismail9@gmail.com`, `taplyinfo@gmail.com`
 - Admin users have access to `/admin/users` for user management
 - Admins can change any user's role: customer, business_owner, or admin
 - Admin-only API routes under `/api/superadmin/` prefix
